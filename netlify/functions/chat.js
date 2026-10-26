@@ -43,7 +43,8 @@ export default async (req) => {
     const data = await response.json();
 
     if (!response.ok) {
-      return new Response(
+  console.error("OpenAI API error:", response.status, data);
+  return new Response(
         JSON.stringify({ error: "The AI service could not complete your request." }),
         {
           status: 502,
