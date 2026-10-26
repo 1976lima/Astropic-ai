@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080d1c">
+  <title>Nyra — AI by AstropicAI</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh;
+      font-family: Inter, system-ui, Arial, sans-serif;
+      color: #eef5ff;
+      background: radial-gradient(ellipse at top, #18254b 0, #0b1020 45%, #060914 100%);
+    }
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 22px 7%; border-bottom: 1px solid #263451;
+    }
+    .brand { font-size: 21px; font-weight: 800; letter-spacing: 3px; }
+    .brand span { color: #70d9ff; }
+    .status { color: #91e8c1; font-size: 13px; }
+    main { width: min(850px, 92%); margin: 65px auto; text-align: center; }
+    .orb {
+      width: 100px; height: 100px; margin: 0 auto 25px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #b9f5ff, #4c7cff 40%, #8c45f5 72%, #17152e);
+      box-shadow: 0 0 65px #517bff66;
+    }
+    h1 { font-size: clamp(42px, 8vw, 70px); margin: 0; letter-spacing: -2px; }
+    h1 span {
+      background: linear-gradient(90deg, #86e6ff, #a99bff);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .subtitle { color: #aab8d5; line-height: 1.7; margin: 18px auto 32px; max-width: 570px; }
+    .suggestions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 24px 0; }
+    .suggestions button {
+      background: #111a30; color: #dce8ff; border: 1px solid #344464;
+      padding: 11px 15px; border-radius: 20px; cursor: pointer;
+    }
+    .suggestions button:hover { border-color: #7bdcff; }
+    .chat {
+      text-align: left; background: #0d1426cc; border: 1px solid #2c3b59;
+      border-radius: 20px; padding: 18px; margin-top: 24px;
+    }
+    #messages { max-height: 330px; overflow-y: auto; }
+    .message { padding: 12px 14px; margin: 10px 0; border-radius: 12px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .nyra { background: #17223b; color: #e0eaff; }
+    .user { background: #26345a; margin-left: 12%; }
+    form { display: flex; gap: 10px; margin-top: 15px; }
+    input {
+      min-width: 0; flex: 1; padding: 15px; border-radius: 12px;
+      background: #080d1b; border: 1px solid #344464; color: white; font-size: 15px;
+    }
+    form button {
+      padding: 0 20px; border: 0; border-radius: 12px;
+      color: #08101e; background: #8ce6ff; font-weight: 800; cursor: pointer;
+    }
+    .note { color: #8494b4; font-size: 12px; margin-top: 18px; }
+    footer { text-align: center; color: #7786a5; padding: 25px; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">ASTROPIC<span>AI</span></div>
+    <div class="status">● NYRA DEVELOPMENT</div>
+  </header>
+  <main>
+    <div class="orb" aria-hidden="true"></div>
+    <h1>Meet <span>Nyra.</span></h1>
+    <p class="subtitle">Your AI partner for thinking bigger, planning smarter, and moving from ideas to action.</p>
+    <div class="suggestions">
+      <button type="button" data-prompt="Help me plan a new project">Plan a project</button>
+      <button type="button" data-prompt="Help me research a business idea">Explore an idea</button>
+      <button type="button" data-prompt="Create a step-by-step action plan for my goal">Build an action plan</button>
+    </div>
+    <section class="chat" aria-label="Nyra chat">
+      <div id="messages" aria-live="polite">
+        <div class="message nyra"><strong>NYRA</strong><br>Hello! I'm Nyra, your AI companion from AstropicAI. Tell me what you'd like to accomplish, and we'll work through it together.</div>
+      </div>
+      <form id="chatForm">
+        <input id="prompt" aria-label="Your message" placeholder="Tell Nyra what you want to achieve..." autocomplete="off" required>
+        <button type="submit">Send ↗</button>
+      </form>
+      <p class="note">Prototype preview: this interface does not yet connect to an AI model or execute tasks.</p>
+    </section>
+  </main>
+  <footer>NYRA · An AstropicAI project</footer>
+  <script>
+    const messages = document.getElementById('messages');
+    const input = document.getElementById('prompt');
+
+    function addMessage(text, kind) {
+      const el = document.createElement('div');
+      el.className = 'message ' + kind;
+      el.textContent = text;
+      messages.appendChild(el);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    document.querySelectorAll('[data-prompt]').forEach(button => {
+      button.addEventListener('click', () => {
+        input.value = button.dataset.prompt;
+        input.focus();
+      });
+    });
+
+    document.getElementById('chatForm').addEventListener('submit', event => {
+      event.preventDefault();
+      const task = input.value.trim();
+      if (!task) return;
+      addMessage('You: ' + task, 'user');
+      addMessage(
+        'I have received your goal: "' + task + '". My next development stage is to connect a secure AI backend so I can reason, create plans, and use approved tools. This preview does not execute the task yet.',
+        'nyra'
+      );
+      input.value = '';
+      input.focus();
+    });
+  </script>
+</body>
+</html>
