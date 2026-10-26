@@ -105,18 +105,55 @@
       });
     });
 
-    document.getElementById('chatForm').addEventListener('submit', event => {
-      event.preventDefault();
-      const task = input.value.trim();
-      if (!task) return;
-      addMessage('You: ' + task, 'user');
-      addMessage(
-        'I have received your goal: "' + task + '". My next development stage is to connect a secure AI backend so I can reason, create plans, and use approved tools. This preview does not execute the task yet.',
-        'nyra'
-      );
-      input.value = '';
-      input.focus();
+    document.getElementById('chatForm').addEventListener('submit', async (event) => {
+  event.preventDefault();
+
+  const task = input.value.trim();
+  if (!task) return;
+
+  addMessage('You: ' + task, 'user');
+  input.value = '';
+
+  const sendButton = document.querySelector('#chatForm button[type="submit"]');
+  sendButton.disabled = true;
+
+  try {
+    addMessage('Nyra is thinking...', 'nyra');
+
+    const response = await fetch('/.netlify/functions/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: task })
     });
+
+    const data = await response.json();
+
+    const messages = document.getElementById('messages');
+    const lastMessage = messages.lastElementChild;
+
+    if (lastMessage && lastMessage.textContent.includes('Nyra is thinking')) {
+      lastMessage.remove();
+    }
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Request failed');
+    }
+
+    addMessage(data.reply || data.response || 'No reply received.', 'nyra');
+  } catch (error) {
+    const messages = document.getElementById('messages');
+    const lastMessage = messages.lastElementChild;
+
+    if (lastMessage && lastMessage.textContent.includes('Nyra is thinking')) {
+      lastMessage.remove();
+    }
+
+    addMessage('Sorry, I could not connect. ' + error.message, 'nyra');
+  } finally {
+    sendButton.disabled = false;
+    input.focus();
+  }
+});
   </script>
 </body>
 </html>
