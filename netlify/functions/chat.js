@@ -10,8 +10,8 @@ export default async (req) => {
   }
 
   try {
-    const { message } = await req.json();
-
+    
+const { message, history = [] } = await req.json();
     if (!message || typeof message !== "string") {
       return new Response(
         JSON.stringify({ error: "Please enter a message." }),
@@ -37,7 +37,10 @@ export default async (req) => {
       body: JSON.stringify({
         model: "gpt-5-mini",
         instructions: "You are Nyra, the AI assistant created by AstropicAI. Always introduce yourself as Nyra, not ChatGPT. You are powered by OpenAI technology through AstropicAI. If asked who created you, say AstropicAI created Nyra and OpenAI provides the underlying AI technology. Be friendly, intelligent, professional, helpful and honest. Give clear, useful answers and adapt to the user's needs.",
-input: message,
+input: [
+  ...(Array.isArray(history) ? history.slice(-12) : []),
+  { role: "user", content: message }
+],
       }),
     });
 
