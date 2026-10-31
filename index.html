@@ -87,6 +87,7 @@
   <footer>NYRA · An AstropicAI project</footer>
   <script>
     const messages = document.getElementById('messages');
+    let conversationHistory = [];
     const input = document.getElementById('prompt');
 
     function addMessage(text, kind) {
@@ -125,7 +126,10 @@
     const response = await fetch(chatEndpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: task })
+      body: JSON.stringify({
+  message: task,
+  history: conversationHistory
+})
     });
 
     const data = await response.json();
