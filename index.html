@@ -145,7 +145,11 @@
       throw new Error(data.error || 'Request failed');
     }
 
-    addMessage(data.reply || data.response || 'No reply received.', 'nyra');
+    const reply = data.reply || data.response || 'No reply received.';
+addMessage(reply, 'nyra');
+
+conversationHistory.push({ role: 'user', content: task });
+conversationHistory.push({ role: 'assistant', content: reply });
   } catch (error) {
     const messages = document.getElementById('messages');
     const lastMessage = messages.lastElementChild;
