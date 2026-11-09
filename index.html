@@ -86,85 +86,8 @@
   </main>
   <footer>NYRA · An AstropicAI project</footer>
  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    const messages = document.getElementById('messages');
-    let conversationHistory = [];
-    const input = document.getElementById('prompt');
-
-    function addMessage(text, kind) {
-      const el = document.createElement('div');
-      el.className = 'message ' + kind;
-      el.textContent = text;
-      messages.appendChild(el);
-      messages.scrollTop = messages.scrollHeight;
-    }
-
-    document.querySelectorAll('[data-prompt]').forEach(button => {
-      button.addEventListener('click', () => {
-        input.value = button.dataset.prompt;
-        input.focus();
-      });
-    });
-
-    document.getElementById('chatForm').addEventListener('submit', async (event) => {
-  event.preventDefault();
-
-  const task = input.value.trim();
-  if (!task) return;
-
-  addMessage('You: ' + task, 'user');
-  input.value = '';
-
-  const sendButton = document.querySelector('#chatForm button[type="submit"]');
-  sendButton.disabled = true;
-
-  try {
-    addMessage('Nyra is thinking...', 'nyra');
-
-    const chatEndpoint = /^\/nyra(?:\/|$)/.test(window.location.pathname)
-      ? '/nyra/api/chat'
-      : '/.netlify/functions/chat';
-    const response = await fetch(chatEndpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-  message: task,
-  history: conversationHistory
-})
-    });
-
-    const data = await response.json();
-
-    const messages = document.getElementById('messages');
-    const lastMessage = messages.lastElementChild;
-
-    if (lastMessage && lastMessage.textContent.includes('Nyra is thinking')) {
-      lastMessage.remove();
-    }
-
-    if (!response.ok) {
-      throw new Error(data.error || 'Request failed');
-    }
-
-    const reply = data.reply || data.response || 'No reply received.';
-addMessage(reply, 'nyra');
-
-conversationHistory.push({ role: 'user', content: task });
-conversationHistory.push({ role: 'assistant', content: reply });
-  } catch (error) {
-    const messages = document.getElementById('messages');
-    const lastMessage = messages.lastElementChild;
-
-    if (lastMessage && lastMessage.textContent.includes('Nyra is thinking')) {
-      lastMessage.remove();
-    }
-
-    addMessage('Sorry, I could not connect. ' + error.message, 'nyra');
-  } finally {
-    sendButton.disabled = false;
-    input.focus();
-  }
-});
-  </script>
+<script>
+  // Nyra code goes here
+</script>
 </body>
 </html>
