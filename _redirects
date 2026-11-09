@@ -1,4 +1,2 @@
-/nyra/api/chat  /.netlify/functions/chat  200!
-/nyra           /index.html              200!
-/nyra/          /index.html              200!
-/nyra/*         /:splat                  200
+/nyra/api/chat  /.netlify/functions/chat  200
+/nyra           /nyra/                    301
