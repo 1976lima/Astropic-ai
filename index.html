@@ -87,7 +87,119 @@
   <footer>NYRA · An AstropicAI project</footer>
  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  // Nyra code goes here
+  
+const API = "/nyra/api/chat";
+
+const messagesBox = document.getElementById("messages");
+const form = document.getElementById("chatForm");
+const input = document.getElementById("prompt");
+const sendButton = form.querySelector('button[type="submit"]');
+
+let supabaseClient;
+let session;
+let conversationId = localStorage.getItem("nyra_conversation_id");
+
+function addMessage(content, role) {
+  const div = document.createElement("div");
+  div.className = "message " + (role === "user" ? "user" : "nyra");
+  div.textContent = content;
+  messagesBox.appendChild(div);
+  messagesBox.scrollTop = messagesBox.scrollHeight;
+}
+
+async function initializeNyra() {
+  const configResponse = await fetch(API);
+  if (!configResponse.ok) throw new Error("Configuration failed");
+
+  const config = await configResponse.json();
+
+  supabaseClient = window.supabase.createClient(
+    config.supabaseUrl,
+    config.supabaseAnonKey
+  );
+
+  const existing = await supabaseClient.auth.getSession();
+  session = existing.data.session;
+
+  if (!session) {
+    const result = await supabaseClient.auth.signInAnonymously();
+    if (result.error) throw result.error;
+    session = result.data.session;
+  }
+
+  if (conversationId) {
+    const response = await fetch(API, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + session.access_token
+      },
+      body: JSON.stringify({
+        action: "load",
+        conversationId
+      })
+    });
+
+    const data = await response.json();
+
+    if (response.ok && data.messages) {
+      data.messages.forEach(item => {
+        addMessage(item.content, item.role);
+      });
+    } else {
+      conversationId = null;
+      localStorage.removeItem("nyra_conversation_id");
+    }
+  }
+}
+
+form.addEventListener("submit", async event => {
+  event.preventDefault();
+
+  const message = input.value.trim();
+  if (!message || !session) return;
+
+  addMessage(message, "user");
+  input.value = "";
+  sendButton.disabled = true;
+
+  try {
+    const response = await fetch(API, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + session.access_token
+      },
+      body: JSON.stringify({
+        message,
+        conversationId
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Request failed");
+    }
+
+    conversationId = data.conversation_id;
+    localStorage.setItem("nyra_conversation_id", conversationId);
+
+    addMessage(data.reply, "nyra");
+
+  } catch (error) {
+    addMessage("Connection error: " + error.message, "nyra");
+  } finally {
+    sendButton.disabled = false;
+    input.focus();
+  }
+});
+
+initializeNyra().catch(error => {
+  console.error("Nyra initialization error:", error);
+  addMessage("Nyra could not connect. Please refresh and try again.", "nyra");
+});
+
 </script>
 </body>
 </html>
