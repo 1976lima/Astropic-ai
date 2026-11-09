@@ -6,7 +6,7 @@ const json = (data, status = 200) =>
   });
 
 export default async (req) => {
-  const env = (key) => process.env[key];
+  const env = (key) => Netlify.env.get(key);
 
   const url = env("SUPABASE_URL")?.replace(/\/+$/, "");
   const anon = env("SUPABASE_ANON_KEY");
