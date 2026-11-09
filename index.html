@@ -1,162 +1,68 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#080d1c">
-  <title>Nyra — AI by AstropicAI</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#070914" />
+  <meta name="description" content="ASTROPIC AI builds intelligent AI agents, automation, and software for a world without boundaries." />
+  <meta property="og:title" content="ASTROPIC AI — Intelligence Beyond Boundaries" />
+  <meta property="og:description" content="Explore intelligent agents, automation, and software built for what's next." />
+  <title>ASTROPIC AI — Intelligence Beyond Boundaries</title>
   <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; min-height: 100vh;
-      font-family: Inter, system-ui, Arial, sans-serif;
-      color: #eef5ff;
-      background: radial-gradient(ellipse at top, #18254b 0, #0b1020 45%, #060914 100%);
-    }
-    header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 22px 7%; border-bottom: 1px solid #263451;
-    }
-    .brand { font-size: 21px; font-weight: 800; letter-spacing: 3px; }
-    .brand span { color: #70d9ff; }
-    .status { color: #91e8c1; font-size: 13px; }
-    main { width: min(850px, 92%); margin: 65px auto; text-align: center; }
-    .orb {
-      width: 100px; height: 100px; margin: 0 auto 25px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 35% 30%, #b9f5ff, #4c7cff 40%, #8c45f5 72%, #17152e);
-      box-shadow: 0 0 65px #517bff66;
-    }
-    h1 { font-size: clamp(42px, 8vw, 70px); margin: 0; letter-spacing: -2px; }
-    h1 span {
-      background: linear-gradient(90deg, #86e6ff, #a99bff);
-      -webkit-background-clip: text; background-clip: text; color: transparent;
-    }
-    .subtitle { color: #aab8d5; line-height: 1.7; margin: 18px auto 32px; max-width: 570px; }
-    .suggestions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 24px 0; }
-    .suggestions button {
-      background: #111a30; color: #dce8ff; border: 1px solid #344464;
-      padding: 11px 15px; border-radius: 20px; cursor: pointer;
-    }
-    .suggestions button:hover { border-color: #7bdcff; }
-    .chat {
-      text-align: left; background: #0d1426cc; border: 1px solid #2c3b59;
-      border-radius: 20px; padding: 18px; margin-top: 24px;
-    }
-    #messages { max-height: 330px; overflow-y: auto; }
-    .message { padding: 12px 14px; margin: 10px 0; border-radius: 12px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
-    .nyra { background: #17223b; color: #e0eaff; }
-    .user { background: #26345a; margin-left: 12%; }
-    form { display: flex; gap: 10px; margin-top: 15px; }
-    input {
-      min-width: 0; flex: 1; padding: 15px; border-radius: 12px;
-      background: #080d1b; border: 1px solid #344464; color: white; font-size: 15px;
-    }
-    form button {
-      padding: 0 20px; border: 0; border-radius: 12px;
-      color: #08101e; background: #8ce6ff; font-weight: 800; cursor: pointer;
-    }
-    .note { color: #8494b4; font-size: 12px; margin-top: 18px; }
-    footer { text-align: center; color: #7786a5; padding: 25px; font-size: 13px; }
+    :root{--bg:#070914;--panel:#101326;--text:#f4f6ff;--muted:#a7adc6;--line:rgba(181,190,255,.15);--blue:#7c8cff;--cyan:#65e6f2;--violet:#bd8bff;--max:1160px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:90px}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.6;overflow-x:hidden}a{color:inherit;text-decoration:none}button,input,textarea{font:inherit}.wrap{width:min(var(--max),calc(100% - 44px));margin:auto}.bg-glow{position:absolute;inset:0 0 auto;height:780px;pointer-events:none;overflow:hidden;z-index:-1;background:radial-gradient(ellipse at 70% 18%,rgba(80,70,220,.24),transparent 36%),radial-gradient(ellipse at 20% 28%,rgba(27,169,208,.12),transparent 35%),linear-gradient(180deg,#090b1c 0%,var(--bg) 92%)}
+    .nav{height:82px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;background:rgba(7,9,20,.78);backdrop-filter:blur(18px)}.brand{display:flex;align-items:center;gap:11px;font-size:16px;font-weight:800;letter-spacing:.13em}.logo{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),#7985ff 55%,var(--violet));color:#090b19;font-weight:900;box-shadow:0 0 28px #6b7bff42}.brand span span{color:#9da8ff}.links{display:flex;align-items:center;gap:30px;color:#c1c6dc;font-size:13px}.links a:hover{color:#fff}.nav-cta,.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid #7e8bff70;border-radius:999px;padding:11px 18px;font-size:13px;font-weight:700;transition:.2s ease}.nav-cta:hover,.btn:hover{transform:translateY(-2px);box-shadow:0 10px 35px #6374ff2e}.btn.primary{background:linear-gradient(110deg,#a5b0ff,#79e7f1);color:#080b18;border:0}.btn.secondary{background:#ffffff06;color:#eef0ff}.menu-btn{display:none;background:none;color:white;border:1px solid var(--line);border-radius:10px;padding:8px 11px}
+    .hero{padding:108px 0 85px;position:relative}.eyebrow{display:inline-flex;align-items:center;gap:9px;color:#b8c0ff;font-size:11px;text-transform:uppercase;letter-spacing:.2em;font-weight:800}.dot{width:7px;height:7px;background:var(--cyan);border-radius:50%;box-shadow:0 0 12px var(--cyan)}h1{font-size:clamp(46px,7.4vw,88px);line-height:1.02;letter-spacing:-.065em;max-width:850px;margin:23px 0 24px;font-weight:750}h1 .gradient{background:linear-gradient(100deg,#fff 4%,#b8c1ff 48%,#72e6f2 90%);-webkit-background-clip:text;background-clip:text;color:transparent}.hero p{max-width:620px;font-size:18px;color:var(--muted);margin:0 0 32px}.hero-actions{display:flex;flex-wrap:wrap;gap:13px}.hero-foot{display:flex;gap:25px;flex-wrap:wrap;margin-top:55px;color:#9ba3c0;font-size:12px}.hero-foot span{display:flex;align-items:center;gap:8px}.check{color:var(--cyan);font-weight:900}
+    .orbital{position:absolute;width:420px;height:420px;right:1%;top:110px;border-radius:50%;pointer-events:none;opacity:.85;background:radial-gradient(circle at 40% 36%,#a7c4ff 0,#7c7cff 3%,#4d43b8 12%,#171744 36%,#090b1c 62%,transparent 70%);filter:drop-shadow(0 0 70px #6968ff25)}.orbital:before,.orbital:after{content:"";position:absolute;inset:12%;border:1px solid #a6b4ff3a;border-radius:50%;transform:rotate(-27deg) scaleX(1.5)}.orbital:after{inset:1%;transform:rotate(36deg) scaleX(1.18);border-color:#67e7f24a}.orbit-core{position:absolute;left:44%;top:38%;width:16px;height:16px;background:#e3ffff;border-radius:50%;box-shadow:0 0 35px 15px #9c8cff80}
+    .strip{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:23px 0;background:#ffffff03}.strip-inner{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}.strip-label{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#7f87a8}.capability{font-size:12px;color:#c4c9df;display:flex;gap:9px;align-items:center}.capability b{color:#8997ff;font-size:16px}
+    section{padding:100px 0}.section-head{max-width:690px;margin-bottom:42px}.kicker{color:#8f9aff;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.2em}.section-head h2{font-size:clamp(32px,4.5vw,52px);line-height:1.1;letter-spacing:-.045em;margin:13px 0 15px}.section-head p{color:var(--muted);font-size:16px;margin:0}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.card{position:relative;overflow:hidden;padding:27px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(145deg,#15182d,#0d1020 72%);min-height:245px;transition:.25s}.card:hover{transform:translateY(-5px);border-color:#858fff78}.card:after{content:"";position:absolute;width:130px;height:130px;right:-60px;top:-60px;background:#7c83ff15;filter:blur(15px);border-radius:50%}.iconbox{width:43px;height:43px;border-radius:13px;display:grid;place-items:center;background:#8993ff16;border:1px solid #8c99ff35;color:#aeb8ff;font-size:20px}.card h3{font-size:19px;margin:23px 0 9px}.card p{font-size:13px;color:var(--muted);margin:0;max-width:310px}.tag{display:inline-block;margin-top:20px;color:#9deaf0;font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+    .manifesto{padding:0 0 90px}.manifesto-box{padding:55px;border:1px solid #8d96ff28;border-radius:26px;background:radial-gradient(ellipse at 85% 0%,#6964e52b,transparent 40%),linear-gradient(135deg,#14172d,#0b0e1d)}.manifesto-box h2{font-size:clamp(29px,4vw,46px);letter-spacing:-.04em;line-height:1.15;max-width:790px;margin:14px 0}.manifesto-box p{color:var(--muted);max-width:690px}.principles{display:grid;grid-template-columns:repeat(3,1fr);gap:25px;margin-top:34px}.principle{border-top:1px solid var(--line);padding-top:17px}.principle strong{display:block;font-size:14px;margin-bottom:6px}.principle span{color:var(--muted);font-size:12px}
+    .roadmap{display:grid;grid-template-columns:1fr 1fr;gap:18px}.road-card{padding:27px;border-radius:18px;border:1px solid var(--line);background:#0d1020}.road-top{display:flex;justify-content:space-between;align-items:center;gap:12px}.road-top h3{margin:0;font-size:18px}.status{font-size:10px;text-transform:uppercase;letter-spacing:.1em;border:1px solid #7c8cff50;color:#aab5ff;padding:5px 9px;border-radius:999px}.road-card p{font-size:13px;color:var(--muted);margin-bottom:0}
+    .contact{padding-top:30px}.contact-panel{display:grid;grid-template-columns:1fr .9fr;gap:45px;padding:45px;border:1px solid #8d96ff35;border-radius:24px;background:radial-gradient(ellipse at 0% 100%,#317ca52b,transparent 42%),#101326}.contact-panel h2{font-size:clamp(32px,4vw,49px);line-height:1.08;letter-spacing:-.045em;margin:13px 0}.contact-panel p{color:var(--muted);font-size:14px}.contact-form{display:grid;gap:12px}.contact-form input,.contact-form textarea{width:100%;border:1px solid #8b94bb36;border-radius:11px;padding:13px 14px;color:#fff;background:#070a18;outline:none}.contact-form input:focus,.contact-form textarea:focus{border-color:#8a96ff}.contact-form textarea{min-height:100px;resize:vertical}.form-note{font-size:11px!important;color:#8f97b5!important;margin:0}.footer{margin-top:80px;border-top:1px solid var(--line);padding:27px 0;color:#858da9;font-size:11px}.footer-inner{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap}.footer strong{color:#dfe2f5;letter-spacing:.12em}.footer a:hover{color:white}.reveal{opacity:0;transform:translateY(15px);transition:opacity .65s ease,transform .65s ease}.reveal.visible{opacity:1;transform:none}
+    @media(max-width:850px){.orbital{right:-140px;top:160px;opacity:.34}.hero{padding-top:85px}.cards{grid-template-columns:repeat(2,1fr)}.cards .card:last-child{grid-column:span 2}.contact-panel{grid-template-columns:1fr;gap:20px}.links{gap:16px}}
+    @media(max-width:620px){.wrap{width:min(var(--max),calc(100% - 32px))}.nav{height:70px}.menu-btn{display:block}.links{display:none;position:absolute;top:69px;left:0;right:0;padding:18px 22px 22px;background:#0b0e20;border-bottom:1px solid var(--line);flex-direction:column;align-items:stretch;gap:18px}.links.open{display:flex}.links .nav-cta{text-align:center}.brand{font-size:14px}.hero{padding:76px 0 60px}.orbital{width:300px;height:300px;top:190px;right:-160px;opacity:.28}h1{font-size:clamp(43px,13vw,66px)}.hero p{font-size:16px}.hero-foot{margin-top:38px;gap:13px;flex-direction:column}.strip-inner{justify-content:flex-start;gap:13px 20px}.strip-label{width:100%}section{padding:72px 0}.cards{grid-template-columns:1fr}.cards .card:last-child{grid-column:auto}.card{min-height:210px}.manifesto-box{padding:28px 23px}.principles{grid-template-columns:1fr;gap:17px}.roadmap{grid-template-columns:1fr}.contact-panel{padding:27px 22px}.footer{margin-top:55px}.footer-inner{flex-direction:column}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}.reveal{opacity:1;transform:none}}
   </style>
 </head>
 <body>
-  <header>
-    <div class="brand">ASTROPIC<span>AI</span></div>
-    <div class="status">● NYRA DEVELOPMENT</div>
+  <div class="bg-glow"></div>
+  <header class="nav wrap">
+    <a class="brand" href="#home" aria-label="Astropic AI home"><span class="logo">A</span><span>ASTROPIC <span>AI</span></span></a>
+    <button class="menu-btn" id="menuBtn" aria-label="Open navigation" aria-expanded="false">☰</button>
+    <nav class="links" id="navLinks" aria-label="Main navigation"><a href="#capabilities">Capabilities</a><a href="#vision">Our vision</a><a href="#frontier">The frontier</a><a class="nav-cta" href="#contact">Let's connect ↗</a></nav>
   </header>
-  <main>
-    <div class="orb" aria-hidden="true"></div>
-    <h1>Meet <span>Nyra.</span></h1>
-    <p class="subtitle">Your AI partner for thinking bigger, planning smarter, and moving from ideas to action.</p>
-    <div class="suggestions">
-      <button type="button" data-prompt="Help me plan a new project">Plan a project</button>
-      <button type="button" data-prompt="Help me research a business idea">Explore an idea</button>
-      <button type="button" data-prompt="Create a step-by-step action plan for my goal">Build an action plan</button>
+  <main id="home">
+    <div class="wrap hero">
+      <div class="orbital" aria-hidden="true"><span class="orbit-core"></span></div>
+      <div class="eyebrow"><span class="dot"></span> Building what comes next</div>
+      <h1>Intelligence<br><span class="gradient">Beyond Boundaries.</span></h1>
+      <p>We’re shaping a more intelligent future with AI agents, thoughtful automation, and software that helps people turn ambitious ideas into real-world impact.</p>
+      <div class="hero-actions"><a class="btn primary" href="#capabilities">Explore our capabilities <span>↗</span></a><a class="btn secondary" href="#vision">Discover our vision <span>↓</span></a></div>
+      <div class="hero-foot"><span><b class="check">✓</b> Human-centred by design</span><span><b class="check">✓</b> Built for real-world impact</span><span><b class="check">✓</b> Ready for what’s next</span></div>
     </div>
-    <section class="chat" aria-label="Nyra chat">
-      <div id="messages" aria-live="polite">
-        <div class="message nyra"><strong>NYRA</strong><br>Hello! I'm Nyra, your AI companion from AstropicAI. Tell me what you'd like to accomplish, and we'll work through it together.</div>
+    <div class="strip"><div class="wrap strip-inner"><span class="strip-label">Where intelligence meets possibility</span><span class="capability"><b>✳</b> AI Agents</span><span class="capability"><b>⌘</b> Automation</span><span class="capability"><b>◈</b> Software</span><span class="capability"><b>∞</b> Future Research</span></div></div>
+    <section id="capabilities"><div class="wrap"><div class="section-head reveal"><div class="kicker">What we're building</div><h2>Ideas into intelligent action.</h2><p>Practical technology for today, designed with a view of tomorrow. Our focus is on useful, adaptable systems that help people and businesses do more.</p></div>
+      <div class="cards">
+        <article class="card reveal"><div class="iconbox">✳</div><h3>AI Agents</h3><p>Intelligent assistants that can help research, reason through tasks, and support everyday workflows with people in control.</p><span class="tag">Assist · Reason · Act</span></article>
+        <article class="card reveal"><div class="iconbox">⌘</div><h3>Intelligent Automation</h3><p>Connect repetitive processes, reduce manual effort, and give teams more room to focus on meaningful work.</p><span class="tag">Connect · Simplify · Scale</span></article>
+        <article class="card reveal"><div class="iconbox">◈</div><h3>AI-Powered Software</h3><p>Modern digital products and software experiences built around real needs, useful intelligence, and dependable design.</p><span class="tag">Design · Develop · Improve</span></article>
+        <article class="card reveal"><div class="iconbox">⌘</div><h3>Business Solutions</h3><p>Explore practical ways AI can support customer experiences, operations, decision-making, and new digital services.</p><span class="tag">Understand · Transform · Grow</span></article>
+        <article class="card reveal"><div class="iconbox">◎</div><h3>Research & Exploration</h3><p>Curiosity-led exploration of emerging AI capabilities, responsible intelligence, and the next generation of digital tools.</p><span class="tag">Explore · Learn · Evolve</span></article>
+        <article class="card reveal"><div class="iconbox">∞</div><h3>The Intelligence Frontier</h3><p>A long-term outlook on increasingly capable systems, guided by responsibility, human benefit, and thoughtful progress.</p><span class="tag">Imagine · Question · Advance</span></article>
       </div>
-      <form id="chatForm">
-        <input id="prompt" aria-label="Your message" placeholder="Tell Nyra what you want to achieve..." autocomplete="off" required>
-        <button type="submit">Send ↗</button>
-      </form>
-      <p class="note">Prototype preview: this interface does not yet connect to an AI model or execute tasks.</p>
-    </section>
+    </div></section>
+    <section class="manifesto" id="vision"><div class="wrap"><div class="manifesto-box reveal"><div class="kicker">Our point of view</div><h2>The future isn't just about smarter machines. It's about what people can do with them.</h2><p>At ASTROPIC AI, we believe the best technology expands human potential. We pair bold curiosity with practical problem-solving to build tools that are useful, accessible, and designed with care.</p><div class="principles"><div class="principle"><strong>People first</strong><span>Technology should empower people—not leave them behind.</span></div><div class="principle"><strong>Purpose over hype</strong><span>Real problems, clear value, and progress you can explain.</span></div><div class="principle"><strong>Responsible by design</strong><span>Build thoughtfully, communicate honestly, improve continuously.</span></div></div></div></div></section>
+    <section id="frontier"><div class="wrap"><div class="section-head reveal"><div class="kicker">The road ahead</div><h2>Built for today. Open to tomorrow.</h2><p>Our direction brings near-term utility together with a long-term curiosity about how intelligence can evolve.</p></div><div class="roadmap"><article class="road-card reveal"><div class="road-top"><h3>Useful AI, now</h3><span class="status">Focus</span></div><p>Build practical assistants, automations, and software experiences that address real needs and deliver measurable value.</p></article><article class="road-card reveal"><div class="road-top"><h3>Connected intelligence</h3><span class="status">Explore</span></div><p>Investigate how tools and agents can work together across tasks, systems, and business workflows.</p></article><article class="road-card reveal"><div class="road-top"><h3>Responsible progress</h3><span class="status">Principle</span></div><p>Keep reliability, privacy, transparency, and meaningful human oversight at the centre of the journey.</p></article><article class="road-card reveal"><div class="road-top"><h3>Long-term horizons</h3><span class="status">Vision</span></div><p>Stay curious about emerging AI and future superintelligence research without losing sight of human benefit.</p></article></div></div></section>
+    <section class="contact" id="contact"><div class="wrap"><div class="contact-panel reveal"><div><div class="kicker">Start a conversation</div><h2>Have an idea for what's next?</h2><p>Tell us what you're exploring—an AI product, an automation challenge, a software idea, or a possible collaboration.</p><p>We'd love to hear what you're working on.</p></div><form class="contact-form" id="contactForm"><input id="name" name="name" autocomplete="name" placeholder="Your name" required /><input id="email" name="email" type="email" autocomplete="email" placeholder="Your email address" required /><input id="topic" name="topic" placeholder="What would you like to discuss?" required /><textarea id="message" name="message" placeholder="A little about your idea..." required></textarea><button class="btn primary" type="submit">Prepare your message ↗</button><p class="form-note">This demo opens your email app with a pre-filled message. Add your official contact email before publishing.</p></form></div></div></section>
   </main>
-  <footer>NYRA · An AstropicAI project</footer>
+  <footer class="footer"><div class="wrap footer-inner"><span><strong>ASTROPIC AI</strong> · Intelligence Beyond Boundaries.</span><span>Exploring a more intelligent future.</span><span>© <span id="year"></span> ASTROPIC AI</span></div></footer>
   <script>
-    const messages = document.getElementById('messages');
-    const input = document.getElementById('prompt');
-
-    function addMessage(text, kind) {
-      const el = document.createElement('div');
-      el.className = 'message ' + kind;
-      el.textContent = text;
-      messages.appendChild(el);
-      messages.scrollTop = messages.scrollHeight;
-    }
-
-    document.querySelectorAll('[data-prompt]').forEach(button => {
-      button.addEventListener('click', () => {
-        input.value = button.dataset.prompt;
-        input.focus();
-      });
-    });
-
-    document.getElementById('chatForm').addEventListener('submit', async (event) => {
-  event.preventDefault();
-
-  const task = input.value.trim();
-  if (!task) return;
-
-  addMessage('You: ' + task, 'user');
-  input.value = '';
-
-  const sendButton = document.querySelector('#chatForm button[type="submit"]');
-  sendButton.disabled = true;
-
-  try {
-    addMessage('Nyra is thinking...', 'nyra');
-
-    const chatEndpoint = /^\/nyra(?:\/|$)/.test(window.location.pathname)
-      ? '/nyra/api/chat'
-      : '/.netlify/functions/chat';
-    const response = await fetch(chatEndpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: task })
-    });
-
-    const data = await response.json();
-
-    const messages = document.getElementById('messages');
-    const lastMessage = messages.lastElementChild;
-
-    if (lastMessage && lastMessage.textContent.includes('Nyra is thinking')) {
-      lastMessage.remove();
-    }
-
-    if (!response.ok) {
-      throw new Error(data.error || 'Request failed');
-    }
-
-    addMessage(data.reply || data.response || 'No reply received.', 'nyra');
-  } catch (error) {
-    const messages = document.getElementById('messages');
-    const lastMessage = messages.lastElementChild;
-
-    if (lastMessage && lastMessage.textContent.includes('Nyra is thinking')) {
-      lastMessage.remove();
-    }
-
-    addMessage('Sorry, I could not connect. ' + error.message, 'nyra');
-  } finally {
-    sendButton.disabled = false;
-    input.focus();
-  }
-});
+    const menuBtn=document.getElementById('menuBtn');const navLinks=document.getElementById('navLinks');
+    menuBtn.addEventListener('click',()=>{const open=navLinks.classList.toggle('open');menuBtn.setAttribute('aria-expanded',String(open));menuBtn.textContent=open?'✕':'☰'});
+    navLinks.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{navLinks.classList.remove('open');menuBtn.setAttribute('aria-expanded','false');menuBtn.textContent='☰'}));
+    const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('visible');observer.unobserve(entry.target)}}),{threshold:.12});document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+    document.getElementById('year').textContent=new Date().getFullYear();
+    document.getElementById('contactForm').addEventListener('submit',e=>{e.preventDefault();const name=document.getElementById('name').value.trim();const email=document.getElementById('email').value.trim();const topic=document.getElementById('topic').value.trim();const message=document.getElementById('message').value.trim();const subject=encodeURIComponent('ASTROPIC AI enquiry: '+topic);const body=encodeURIComponent('Name: '+name+'\nEmail: '+email+'\nTopic: '+topic+'\n\n'+message);window.location.href='mailto:hello@astropicai.com?subject='+subject+'&body='+body;});
   </script>
 </body>
 </html>
