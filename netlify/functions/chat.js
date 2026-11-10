@@ -35,9 +35,14 @@ export default async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-5-mini",
-        input: message,
-      }),
+  model: "gpt-5-mini",
+  reasoning: { effort: "low" },
+  tools: [
+    { type: "web_search" }
+  ],
+  tool_choice: "auto",
+  input: message,
+}),
     });
 
     const data = await response.json();
