@@ -64,5 +64,47 @@
     document.getElementById('year').textContent=new Date().getFullYear();
     document.getElementById('contactForm').addEventListener('submit',e=>{e.preventDefault();const name=document.getElementById('name').value.trim();const email=document.getElementById('email').value.trim();const topic=document.getElementById('topic').value.trim();const message=document.getElementById('message').value.trim();const subject=encodeURIComponent('ASTROPIC AI enquiry: '+topic);const body=encodeURIComponent('Name: '+name+'\nEmail: '+email+'\nTopic: '+topic+'\n\n'+message);window.location.href='mailto:hello@astropicai.com?subject='+subject+'&body='+body;});
   </script>
+  
+<!-- NYRA AI Floating Assistant -->
+<a href="/nyra/" id="nyra-launcher" aria-label="Chat with Nyra AI">
+  <span class="nyra-dot"></span>
+  <span>Ask Nyra</span>
+  <span class="nyra-spark">✦</span>
+</a>
+
+<style>
+#nyra-launcher {
+  position: fixed;
+  right: 22px;
+  bottom: 24px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 21px;
+  border: 1px solid #66dff5;
+  border-radius: 40px;
+  background: linear-gradient(135deg,#172b50,#382b78);
+  color: #fff;
+  font: 600 15px Arial,sans-serif;
+  text-decoration: none;
+  box-shadow: 0 5px 25px #24c9f566;
+}
+#nyra-launcher .nyra-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #65edce;
+  box-shadow: 0 0 10px #65edce;
+}
+#nyra-launcher .nyra-spark {
+  color: #78e5ff;
+  font-size: 19px;
+}
+#nyra-launcher:active {
+  transform: scale(.96);
+}
+</style>
+
 </body>
 </html>
