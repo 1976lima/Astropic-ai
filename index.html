@@ -41,13 +41,28 @@ max-width:100%;
 overflow-x:hidden;
 }
     }
+    .brand-logo-img {
+  display: block;
+  width: 230px;
+  height: auto;
+  object-fit: contain;
+}
+
+@media (max-width: 620px) {
+  .brand-logo-img {
+    width: 190px;
+  }
+}
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}.reveal{opacity:1;transform:none}}
+    .
   </style>
 </head>
 <body>
   <div class="bg-glow"></div>
   <header class="nav wrap">
-    <a class="brand" href="#home" aria-label="Astropic AI home"><span class="logo">A</span><span>ASTROPIC <span>AI</span></span></a>
+    <a class="brand" href="#home" aria-label="Astropic AI home"<img class="brand-logo-img"
+src="astropicai-approved-wordmark.png"
+alt="AstropicAI" /></a>
     <button class="menu-btn" id="menuBtn" aria-label="Open navigation" aria-expanded="false">☰</button>
     <nav class="links" id="navLinks" aria-label="Main navigation">
   <a href="#about">About Us</a>
