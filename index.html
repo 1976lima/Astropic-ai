@@ -101,6 +101,82 @@ overflow-x:hidden;
   }
 }
 
+/* NYRA INTRO CARD */
+.nyra-intro {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-top: 45px;
+  padding: 30px;
+  border: 1px solid rgba(120, 95, 255, 0.4);
+  border-radius: 22px;
+  background: linear-gradient(
+    120deg,
+    rgba(45, 38, 100, 0.55),
+    rgba(15, 22, 48, 0.9)
+  );
+  box-shadow: 0 0 35px rgba(100, 75, 255, 0.12);
+}
+
+.nyra-symbol {
+  flex-shrink: 0;
+  width: 65px;
+  height: 65px;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #7555ff, #35c9ee);
+  color: white;
+  font-size: 32px;
+}
+
+.nyra-content h3 {
+  font-size: 30px;
+  margin: 10px 0 5px;
+  color: white;
+}
+
+.nyra-content h4 {
+  color: #b9a7ff;
+  font-size: 17px;
+  margin-bottom: 12px;
+}
+
+.nyra-content p {
+  margin-bottom: 18px;
+}
+
+.nyra-explore {
+  display: inline-flex;
+  gap: 10px;
+  color: #a99aff;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.nyra-explore:hover {
+  color: #ffffff;
+}
+
+@media (max-width: 620px) {
+  .nyra-intro {
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px;
+    margin-top: 30px;
+  }
+
+  .nyra-symbol {
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+  }
+
+  .nyra-content h3 {
+    font-size: 25px;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -153,7 +229,24 @@ overflow-x:hidden;
       AI assistant, designed to make human-AI interaction
       smarter, simpler and more meaningful.
     </p>
+  
+<div class="nyra-intro">
+  <div class="nyra-symbol">✦</div>
+  <div class="nyra-content">
+    <span class="eyebrow">MEET OUR AI ASSISTANT</span>
+    <h3>Meet Nyra</h3>
+    <h4>Your Intelligent AI Companion</h4>
+    <p>
+      Discover a smarter way to explore ideas, solve problems
+      and get things done. Nyra brings intelligent AI
+      assistance closer to you.
+    </p>
+    <a href="/nyra/" class="nyra-explore">
+      Explore Nyra <span>→</span>
+    </a>
   </div>
+</div>
+</div>
 </section>
  <section id="capabilities"><div class="wrap"><div class="section-head reveal"><div class="kicker">What we're building</div><h2>Ideas into intelligent action.</h2><p>Practical technology for today, designed with a view of tomorrow. Our focus is on useful, adaptable systems that help people and businesses do more.</p></div>
       <div class="cards">
