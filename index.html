@@ -54,7 +54,53 @@ overflow-x:hidden;
   }
 }
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}.reveal{opacity:1;transform:none}}
-    .
+/* ABOUT US SECTION */
+.about-section {
+  padding: 90px 0;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    rgba(18, 22, 48, 0.75),
+    rgba(10, 13, 30, 0.95)
+  );
+}
+
+.about-section .eyebrow {
+  color: #a78bfa;
+  letter-spacing: 3px;
+  font-size: 12px;
+  margin-bottom: 20px;
+}
+
+.about-section h2 {
+  max-width: 750px;
+  font-size: clamp(30px, 5vw, 48px);
+  line-height: 1.2;
+  margin-bottom: 25px;
+  background: linear-gradient(90deg, #ffffff, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.about-section p {
+  max-width: 760px;
+  color: #b8bfd3;
+  font-size: 16px;
+  line-height: 1.9;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 620px) {
+  .about-section {
+    padding: 60px 0;
+  }
+
+  .about-section p {
+    font-size: 15px;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -88,7 +134,28 @@ overflow-x:hidden;
       <div class="hero-foot"><span><b class="check">✓</b> Human-centred by design</span><span><b class="check">✓</b> Built for real-world impact</span><span><b class="check">✓</b> Ready for what’s next</span></div>
     </div>
     <div class="strip"><div class="wrap strip-inner"><span class="strip-label">Where intelligence meets possibility</span><span class="capability"><b>✳</b> AI Agents</span><span class="capability"><b>⌘</b> Automation</span><span class="capability"><b>◈</b> Software</span><span class="capability"><b>∞</b> Future Research</span></div></div>
-    <section id="capabilities"><div class="wrap"><div class="section-head reveal"><div class="kicker">What we're building</div><h2>Ideas into intelligent action.</h2><p>Practical technology for today, designed with a view of tomorrow. Our focus is on useful, adaptable systems that help people and businesses do more.</p></div>
+<section id="about" class="about-section">
+  <div class="wrap">
+    <div class="eyebrow">ABOUT ASTROPICAI</div>
+    <h2>Building Intelligence for a Smarter Tomorrow</h2>
+    <p>
+      AstropicAI is an AI technology platform focused on
+      making artificial intelligence more intelligent,
+      accessible and useful for everyone.
+    </p>
+    <p>
+      Our mission is to transform the way people and
+      businesses think, create and work through
+      intelligent AI-powered solutions.
+    </p>
+    <p>
+      At the heart of our vision is Nyra, our flagship
+      AI assistant, designed to make human-AI interaction
+      smarter, simpler and more meaningful.
+    </p>
+  </div>
+</section>
+ <section id="capabilities"><div class="wrap"><div class="section-head reveal"><div class="kicker">What we're building</div><h2>Ideas into intelligent action.</h2><p>Practical technology for today, designed with a view of tomorrow. Our focus is on useful, adaptable systems that help people and businesses do more.</p></div>
       <div class="cards">
         <article class="card reveal"><div class="iconbox">✳</div><h3>AI Agents</h3><p>Intelligent assistants that can help research, reason through tasks, and support everyday workflows with people in control.</p><span class="tag">Assist · Reason · Act</span></article>
         <article class="card reveal"><div class="iconbox">⌘</div><h3>Intelligent Automation</h3><p>Connect repetitive processes, reduce manual effort, and give teams more room to focus on meaningful work.</p><span class="tag">Connect · Simplify · Scale</span></article>
