@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#10182b">
+<title>AstropicAI DNA Vault — Research Prototype</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1020;--panel:#121b30;--panel2:#17233c;--line:#293957;--text:#edf3ff;--muted:#9aabc7;--blue:#75b7ff;--cyan:#66e0d1;--green:#69d7a5;--red:#ff8585;--amber:#f3c978}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 20% 0%,#18294b 0,transparent 42%),var(--bg);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--text)}
+.wrap{max-width:1050px;margin:auto;padding:28px 18px 60px}.top{display:flex;align-items:center;gap:14px;margin-bottom:24px}.logo{width:48px;height:48px;border-radius:14px;background:linear-gradient(145deg,#244c7e,#182440);display:grid;place-items:center;font-size:25px;border:1px solid #42638c}.eyebrow{font-size:11px;letter-spacing:.17em;color:var(--cyan);font-weight:700}.brand{font-weight:800;letter-spacing:.08em;font-size:13px}.title{font-size:clamp(27px,5vw,42px);font-weight:750;letter-spacing:-.04em;margin:0}.sub{color:var(--muted);margin-top:3px}.pill{margin-left:auto;border:1px solid #376a60;color:var(--green);border-radius:999px;padding:5px 10px;font-size:12px;white-space:nowrap}
+.notice{background:#18243a;border:1px solid #344867;padding:13px 15px;border-radius:13px;color:#c9d7ec;margin:18px 0 22px;font-size:13px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 15px}.tab,button{border:1px solid var(--line);background:#18243a;color:var(--text);padding:10px 15px;border-radius:10px;font-weight:650;cursor:pointer}.tab[aria-selected=true]{background:#23446d;border-color:#4b8ac5;color:#fff}button.primary{background:linear-gradient(110deg,#276bb0,#236e79);border:0}button:disabled{opacity:.45;cursor:not-allowed}
+.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}.card{background:linear-gradient(180deg,#142039,#10192b);border:1px solid var(--line);border-radius:17px;padding:19px;min-width:0}.card h2{font-size:18px;margin:0 0 5px}.muted{color:var(--muted);font-size:13px}.drop{border:1px dashed #55749a;background:#101b30;border-radius:13px;padding:25px 14px;text-align:center;margin:17px 0}.drop strong{display:block;margin:7px 0}.drop input{max-width:100%;margin-top:10px}input[type=file]{color:var(--muted)}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.row>*{flex:1}.field{width:100%;padding:10px 12px;background:#0b1426;border:1px solid var(--line);border-radius:9px;color:var(--text)}label{display:block;font-size:13px;color:#c4d2e8;margin:12px 0 6px}.stat{background:#0c1628;border:1px solid #263958;border-radius:12px;padding:12px}.stat b{font-size:20px;display:block}.stat span{font-size:12px;color:var(--muted)}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:14px 0}.sequence{font:12px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;word-break:break-all;white-space:pre-wrap;max-height:240px;overflow:auto;background:#081222;border:1px solid #243653;border-radius:10px;padding:12px;color:#a8e5d4}.status{margin-top:12px;padding:11px 13px;border-radius:10px;background:#101c30;border:1px solid var(--line);font-size:13px}.ok{color:var(--green)}.bad{color:var(--red)}.warn{color:var(--amber)}.hidden{display:none!important}.footer{color:#788aa8;font-size:12px;text-align:center;margin-top:25px}.how{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}.how div{padding:12px;background:#101a2d;border:1px solid #253653;border-radius:11px;font-size:12px;color:var(--muted)}.how b{display:block;color:#e6efff;font-size:13px;margin-bottom:4px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}.pill{font-size:11px}.how{grid-template-columns:1fr}.stats{grid-template-columns:repeat(3,1fr)}.card{padding:15px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="logo">🧬</div>
+    <div><div class="brand">ASTROPICAI RESEARCH</div><h1 class="title">DNA Vault</h1><div class="sub">Digital data → DNA sequence → reconstructed file</div></div>
+    <div class="pill">PROTOTYPE 1.0</div>
+  </header>
+
+  <div class="notice"><b>Research prototype:</b> This app performs computational encoding only. It does not synthesise, sequence, or physically store DNA. Files are processed locally in your browser; nothing is uploaded to a server.</div>
+
+  <nav class="tabs" aria-label="DNA Vault tools">
+    <button class="tab" data-tab="encode" aria-selected="true">1. Encode file</button>
+    <button class="tab" data-tab="decode" aria-selected="false">2. Decode package</button>
+    <button class="tab" data-tab="validate" aria-selected="false">3. Validate sequence</button>
+  </nav>
+
+  <section id="encode" class="panel">
+    <div class="grid">
+      <div class="card">
+        <h2>Encode a digital file</h2><div class="muted">Choose any file. The prototype maps every 2 bits to one DNA base.</div>
+        <div class="drop"><div style="font-size:30px">📁</div><strong>Select a file to encode</strong><span class="muted">TXT, PDF, JPG, PNG, ZIP and other file types</span><br><input id="fileInput" type="file"></div>
+        <label for="chunkSize">DNA bases per fragment</label>
+        <select id="chunkSize" class="field"><option value="120">120 bases (60 bytes)</option><option value="240">240 bases (120 bytes)</option><option value="600">600 bases (300 bytes)</option><option value="1200">1,200 bases (600 bytes)</option></select>
+        <div class="row" style="margin-top:16px"><button id="encodeBtn" class="primary" disabled>Generate DNA package</button><button id="clearEncode">Clear</button></div>
+        <div id="encodeStatus" class="status muted">Select a file to begin.</div>
+      </div>
+      <div class="card">
+        <h2>Encoding output</h2><div class="muted">A downloadable package includes the sequence, filename, file type, size and SHA-256 checksum.</div>
+        <div class="stats"><div class="stat"><b id="baseCount">—</b><span>DNA bases</span></div><div class="stat"><b id="fragCount">—</b><span>Fragments</span></div><div class="stat"><b id="gcCount">—</b><span>GC content</span></div></div>
+        <div id="sequencePreview" class="sequence">Your DNA sequence will appear here.</div>
+        <div class="row" style="margin-top:13px"><button id="downloadJson" disabled>Download .dnavault.json</button><button id="downloadFasta" disabled>Download FASTA</button></div>
+        <div id="encodeMeta" class="muted" style="margin-top:12px;word-break:break-word"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="decode" class="panel hidden">
+    <div class="grid">
+      <div class="card">
+        <h2>Decode a DNA Vault package</h2><div class="muted">Import a .dnavault.json package generated by the Encode tab.</div>
+        <div class="drop"><div style="font-size:30px">🧾</div><strong>Choose DNA Vault package</strong><input id="packageInput" type="file" accept=".json,.dnavault.json,application/json"></div>
+        <button id="decodeBtn" class="primary" disabled>Decode and verify file</button>
+        <div id="decodeStatus" class="status muted">No package selected.</div>
+      </div>
+      <div class="card">
+        <h2>Recovery result</h2>
+        <div class="stats"><div class="stat"><b id="decodeSize">—</b><span>Recovered bytes</span></div><div class="stat"><b id="decodeHash">—</b><span>Checksum</span></div><div class="stat"><b id="decodeResult">—</b><span>Integrity</span></div></div>
+        <div class="muted" id="decodeInfo">The recovered file will be offered for download after successful decoding.</div>
+        <button id="downloadRecovered" class="primary" disabled style="margin-top:14px;width:100%">Download recovered file</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="validate" class="panel hidden">
+    <div class="grid">
+      <div class="card">
+        <h2>DNA sequence quality check</h2><div class="muted">Paste a DNA sequence (A, C, G, T). Whitespace and FASTA headers are ignored.</div>
+        <label for="sequenceInput">DNA sequence</label>
+        <textarea id="sequenceInput" class="field" rows="8" placeholder="ATCGGCTAACGTAGCT..."></textarea>
+        <button id="validateBtn" class="primary" style="margin-top:13px">Analyse sequence</button>
+        <div id="validateStatus" class="status muted">Waiting for a sequence.</div>
+      </div>
+      <div class="card">
+        <h2>Quality metrics</h2>
+        <div class="stats"><div class="stat"><b id="lengthMetric">—</b><span>Length (bases)</span></div><div class="stat"><b id="gcMetric">—</b><span>GC content</span></div><div class="stat"><b id="runMetric">—</b><span>Longest repeat</span></div></div>
+        <div id="qualityNotes" class="muted">Typical screening flags include very high/low GC content and long runs of the same base. These are educational heuristics, not a guarantee of synthesis compatibility.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="how">
+    <div><b>01 · Encode</b>Binary pairs are mapped as 00=A, 01=C, 10=G, 11=T.</div>
+    <div><b>02 · Package</b>Sequence fragments are stored with metadata and a SHA-256 digest.</div>
+    <div><b>03 · Verify</b>Decode recreates the original bytes and checks the digest before download.</div>
+  </div>
+  <div class="footer">AstropicAI DNA Vault · Experimental software · Not for clinical or laboratory production use</div>
+</div>
+<script>
+(() => {
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const MAP = ["A","C","G","T"];
+  let selectedFile = null, currentPackage = null, recoveredBlob = null, recoveredName = "recovered.bin";
+
+  document.querySelectorAll(".tab").forEach(btn => btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", String(b === btn)));
+    document.querySelectorAll(".panel").forEach(p => p.classList.toggle("hidden", p.id !== btn.dataset.tab));
+  }));
+  const bytesToDNA = bytes => {
+    let out = "";
+    for (const b of bytes) out += MAP[(b >> 6) & 3] + MAP[(b >> 4) & 3] + MAP[(b >> 2) & 3] + MAP[b & 3];
+    return out;
+  };
+  const dnaToBytes = seq => {
+    if (!/^[ACGT]*$/.test(seq) || seq.length % 4 !== 0) throw new Error("Sequence must contain only A/C/G/T and have a length divisible by 4.");
+    const out = new Uint8Array(seq.length / 4);
+    for (let i=0,j=0;i<seq.length;i+=4,j++) {
+      const a=MAP.indexOf(seq[i]), b=MAP.indexOf(seq[i+1]), c=MAP.indexOf(seq[i+2]), d=MAP.indexOf(seq[i+3]);
+      out[j]=(a<<6)|(b<<4)|(c<<2)|d;
+    }
+    return out;
+  };
+  const sha256 = async bytes => {
+    if (!globalThis.crypto?.subtle) throw new Error("SHA-256 requires a secure browser context. Open this page over HTTPS (for example, Netlify) and try again.");
+    const digest = await crypto.subtle.digest("SHA-256", bytes);
+    return [...new Uint8Array(digest)].map(x=>x.toString(16).padStart(2,"0")).join("");
+  };
+  const gcPercent = seq => seq.length ? (([...seq].filter(x=>x==="G"||x==="C").length/seq.length)*100) : 0;
+  const longestRun = seq => {let best=0,run=0,last="";for(const c of seq){run=c===last?run+1:1;last=c;if(run>best)best=run;}return best;};
+  const cleanDNA = s => s.toUpperCase().replace(/^>.*$/gm,"").replace(/[^ACGT]/g,"");
+  const download = (blob,name) => {const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);};
+  const setStatus = (id,msg,kind="muted") => {$(id).className="status "+kind;$(id).textContent=msg;};
+
+  $("fileInput").addEventListener("change", e => {
+    selectedFile=e.target.files[0]||null;
+    $("encodeBtn").disabled=!selectedFile;
+    setStatus("encodeStatus",selectedFile?`${selectedFile.name} selected · ${selectedFile.size.toLocaleString()} bytes`:"Select a file to begin.",selectedFile?"ok":"muted");
+  });
+  $("encodeBtn").addEventListener("click", async () => {
+    if(!selectedFile)return;
+    $("encodeBtn").disabled=true;setStatus("encodeStatus","Reading file and generating DNA sequence…");
+    try {
+      const bytes=new Uint8Array(await selectedFile.arrayBuffer());
+      const sequence=bytesToDNA(bytes);
+      const basesPerFragment=Number($("chunkSize").value);
+      const fragments=[];
+      for(let i=0;i<sequence.length;i+=basesPerFragment) fragments.push({index:fragments.length,sequence:sequence.slice(i,i+basesPerFragment)});
+      const digest=await sha256(bytes);
+      currentPackage={format:"AstropicAI-DNAVault",version:"1.0",encoding:"2-bit-base-map-v1",mapping:{"00":"A","01":"C","10":"G","11":"T"},file:{name:selectedFile.name,type:selectedFile.type||"application/octet-stream",size:bytes.length,sha256:digest},basesPerFragment,baseCount:sequence.length,fragmentCount:fragments.length,fragments};
+      $("baseCount").textContent=sequence.length.toLocaleString();
+      $("fragCount").textContent=fragments.length.toLocaleString();
+      $("gcCount").textContent=gcPercent(sequence).toFixed(1)+"%";
+      $("sequencePreview").textContent=sequence.slice(0,1200)+(sequence.length>1200?"\n… preview truncated; full sequence is in the package":"");
+      $("encodeMeta").textContent=`File: ${selectedFile.name} · SHA-256: ${digest}`;
+      $("downloadJson").disabled=false;$("downloadFasta").disabled=false;
+      setStatus("encodeStatus","Encoding complete. Download the DNA package and FASTA sequence.","ok");
+    } catch(err){setStatus("encodeStatus",err.message||String(err),"bad");}
+    finally{$("encodeBtn").disabled=!selectedFile;}
+  });
+  $("downloadJson").addEventListener("click",()=>{if(currentPackage)download(new Blob([JSON.stringify(currentPackage,null,2)],{type:"application/json"}),selectedFile.name+".dnavault.json");});
+  $("downloadFasta").addEventListener("click",()=>{if(!currentPackage)return;const fasta=currentPackage.fragments.map(f=>`>fragment_${String(f.index+1).padStart(6,"0")}\n${f.sequence}`).join("\n");download(new Blob([fasta+"\n"],{type:"text/plain"}),selectedFile.name+".fasta");});
+  $("clearEncode").addEventListener("click",()=>{selectedFile=null;currentPackage=null;$("fileInput").value="";$("encodeBtn").disabled=true;$("downloadJson").disabled=true;$("downloadFasta").disabled=true;$("baseCount").textContent=$("fragCount").textContent=$("gcCount").textContent="—";$("sequencePreview").textContent="Your DNA sequence will appear here.";$("encodeMeta").textContent="";setStatus("encodeStatus","Select a file to begin.");});
+
+  $("packageInput").addEventListener("change",e=>{$("decodeBtn").disabled=!(e.target.files&&e.target.files[0]);setStatus("decodeStatus",e.target.files[0]?`${e.target.files[0].name} selected.`:"No package selected.",e.target.files[0]?"ok":"muted");});
+  $("decodeBtn").addEventListener("click",async()=>{
+    const f=$("packageInput").files[0];if(!f)return;
+    $("decodeBtn").disabled=true;recoveredBlob=null;$("downloadRecovered").disabled=true;setStatus("decodeStatus","Decoding and verifying package…");
+    try{
+      const pkg=JSON.parse(await f.text());
+      if(pkg.format!=="AstropicAI-DNAVault"||pkg.version!=="1.0"||pkg.encoding!=="2-bit-base-map-v1")throw new Error("Unsupported DNA Vault package or version.");
+      if(!Array.isArray(pkg.fragments)||!pkg.file||typeof pkg.file.sha256!=="string")throw new Error("Package is missing required metadata.");
+      const sorted=[...pkg.fragments].sort((a,b)=>a.index-b.index);
+      sorted.forEach((x,i)=>{if(x.index!==i||typeof x.sequence!=="string")throw new Error("Fragment indexes are missing, duplicated or out of order.");});
+      const seq=sorted.map(x=>x.sequence).join("");
+      const bytes=dnaToBytes(seq);
+      if(bytes.length!==pkg.file.size)throw new Error("Decoded size does not match package metadata.");
+      const digest=await sha256(bytes);
+      const ok=digest===pkg.file.sha256;
+      $("decodeSize").textContent=bytes.length.toLocaleString();
+      $("decodeHash").textContent=digest.slice(0,10)+"…";
+      $("decodeResult").textContent=ok?"PASS":"FAIL";
+      $("decodeResult").className=ok?"ok":"bad";
+      $("decodeInfo").textContent=`Original filename: ${pkg.file.name} · Expected SHA-256: ${pkg.file.sha256}`;
+      if(!ok)throw new Error("Integrity check failed: SHA-256 does not match. The sequence or package may be corrupted.");
+      recoveredName=pkg.file.name||"recovered.bin";recoveredBlob=new Blob([bytes],{type:pkg.file.type||"application/octet-stream"});$("downloadRecovered").disabled=false;
+      setStatus("decodeStatus","Successful reconstruction. SHA-256 matches the original file.","ok");
+    }catch(err){$("decodeResult").textContent="FAIL";$("decodeResult").className="bad";setStatus("decodeStatus",err.message||String(err),"bad");}
+    finally{$("decodeBtn").disabled=false;}
+  });
+  $("downloadRecovered").addEventListener("click",()=>{if(recoveredBlob)download(recoveredBlob,recoveredName);});
+
+  $("validateBtn").addEventListener("click",()=>{
+    const raw=$("sequenceInput").value;const seq=cleanDNA(raw);
+    if(!seq.length){setStatus("validateStatus","Enter a DNA sequence containing A, C, G or T.","bad");return;}
+    const gc=gcPercent(seq),run=longestRun(seq),invalid=raw.toUpperCase().replace(/^>.*$/gm,"").replace(/[\sACGT]/g,"");
+    $("lengthMetric").textContent=seq.length.toLocaleString();$("gcMetric").textContent=gc.toFixed(1)+"%";$("runMetric").textContent=run;
+    const notes=[];
+    if(invalid.length)notes.push("Non-DNA characters were ignored.");
+    if(gc<40||gc>60)notes.push("GC content is outside the illustrative 40–60% screening band.");
+    else notes.push("GC content is within the illustrative 40–60% screening band.");
+    if(run>4)notes.push("Long homopolymer run detected (more than 4 identical bases).");
+    else notes.push("No run longer than 4 identical bases detected.");
+    notes.push("These are basic screening heuristics only; synthesis suitability depends on the provider and full sequence context.");
+    $("qualityNotes").textContent=notes.join(" ");
+    setStatus("validateStatus",`Analysis complete: ${seq.length.toLocaleString()} bases analysed.`,`ok`);
+  });
+})();
+</script>
+</body>
+</html>
