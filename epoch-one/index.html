@@ -1,0 +1,89 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080b14">
+  <title>EPOCH ONE | AstropicAI</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <a class="brand" href="./">ASTROPIC<span>AI</span></a>
+    <span class="status"><i></i> EXPERIMENTAL SYSTEM</span>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="eyebrow">A NEW HUMAN–TECHNOLOGY INTERFACE</div>
+      <h1>EPOCH <span>ONE</span></h1>
+      <p class="intro">
+        Beyond screens. Beyond conventional interaction.
+        A new way to connect human intent with digital intelligence.
+      </p>
+
+      <div class="orbital">
+        <div class="orbit orbit-one"></div>
+        <div class="orbit orbit-two"></div>
+        <div class="core">
+          <div class="core-inner">E1</div>
+        </div>
+        <span class="orbit-label">HUMAN × INTELLIGENCE</span>
+      </div>
+
+      <p class="system-state" id="systemState">SYSTEM STANDBY</p>
+      <button id="activate">INITIALISE EXPERIENCE</button>
+    </section>
+
+    <section class="interaction">
+      <div class="section-label">01 / INTERACTION LAB</div>
+      <h2>Explore natural interaction.</h2>
+      <p>Experience the first software demonstrations of EPOCH ONE.</p>
+
+      <div class="modules">
+        <article class="module">
+          <span>01</span>
+          <h3>Voice Interface</h3>
+          <p>Interact using your voice, where supported by your browser.</p>
+          <button id="voiceButton">START VOICE</button>
+          <div class="output" id="voiceOutput">Awaiting voice input.</div>
+        </article>
+
+        <article class="module">
+          <span>02</span>
+          <h3>Visual Interface</h3>
+          <p>Explore camera-based visual interaction.</p>
+          <button id="cameraButton">OPEN CAMERA</button>
+          <video id="camera" autoplay playsinline hidden></video>
+          <div class="output" id="cameraOutput">Camera inactive.</div>
+        </article>
+
+        <article class="module">
+          <span>03</span>
+          <h3>Gesture Concept</h3>
+          <p>Test a simulated gesture-based interface.</p>
+          <button id="gestureButton">TEST GESTURE</button>
+          <div class="output" id="gestureOutput">Gesture system on standby.</div>
+        </article>
+
+        <article class="module">
+          <span>04</span>
+          <h3>Context Intelligence</h3>
+          <p>Explore a simple context-aware interaction concept.</p>
+          <button id="contextButton">RUN EXPERIENCE</button>
+          <div class="output" id="contextOutput">Context engine on standby.</div>
+        </article>
+      </div>
+    </section>
+
+    <footer>
+      <div class="brand">EPOCH ONE</div>
+      <p>An experimental research initiative by AstropicAI.</p>
+      <small>PROTOTYPE 1.0 · SOFTWARE DEMONSTRATION</small>
+    </footer>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
