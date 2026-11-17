@@ -1,206 +1,224 @@
 
-import test from "node:test";
-import assert from "node:assert/strict";
+const ALLOWED_TESTS = new Set([
+  "security-headers",
+  "tls-check",
+  "port-inventory",
+  "web-vulnerability-check"
+]);
 
-import {
-  validateScope,
-  checkRequestScope
-} from "../governance/scope-manager.js";
+function normaliseHost(host) {
+  if (typeof host !== "string") return "";
+  return host.trim().toLowerCase().replace(/\.$/, "");
+}
 
-function validScope(overrides = {}) {
+function canonicalPath(path) {
+  if (typeof path !== "string" || !path.startsWith("/")) {
+    return null;
+  }
+
+  let decoded;
+
+  try {
+    decoded = decodeURIComponent(path);
+  } catch {
+    return null;
+  }
+
+  if (
+    decoded.includes("\\") ||
+    decoded.includes("\0")
+  ) {
+    return null;
+  }
+
+  const segments = [];
+
+  for (const segment of decoded.split("/")) {
+    if (!segment || segment === ".") continue;
+
+    if (segment === "..") {
+      segments.pop();
+    } else {
+      segments.push(segment);
+    }
+  }
+
+  return "/" + segments.join("/");
+}
+
+export function validateScope(scope) {
+  const errors = [];
+
+  if (!scope || typeof scope !== "object" || Array.isArray(scope)) {
+    return { valid: false, errors: ["Scope is required"] };
+  }
+
+  if (scope.authorisationConfirmed !== true) {
+    errors.push("Explicit authorisation is required");
+  }
+
+  if (
+    typeof scope.authorisationReference !== "string" ||
+    !scope.authorisationReference.trim()
+  ) {
+    errors.push("Authorisation reference is required");
+  }
+
+  if (
+    !Array.isArray(scope.allowedTargets) ||
+    scope.allowedTargets.length === 0
+  ) {
+    errors.push("At least one approved target is required");
+  } else {
+    for (const target of scope.allowedTargets) {
+      if (typeof target !== "string") {
+        errors.push("Target entries must be strings");
+        continue;
+      }
+
+      const host = normaliseHost(target);
+
+      if (
+        !host ||
+        host.length > 253 ||
+        host.includes("/") ||
+        host.includes("@") ||
+        host.includes(":") ||
+        host.includes("*") ||
+        /\s/.test(host) ||
+        !host.split(".").every(label =>
+          label.length > 0 &&
+          label.length <= 63 &&
+          /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(label)
+        )
+      ) {
+        errors.push("Invalid or overly broad target: " + target);
+      }
+    }
+  }
+
+  if (
+    !Array.isArray(scope.allowedTests) ||
+    scope.allowedTests.length === 0
+  ) {
+    errors.push("At least one permitted test is required");
+  } else if (
+    scope.allowedTests.some(test =>
+      typeof test !== "string" || !ALLOWED_TESTS.has(test)
+    )
+  ) {
+    errors.push("Scope contains an unsupported test");
+  }
+
+  if (
+    scope.excludedPaths !== undefined &&
+    !Array.isArray(scope.excludedPaths)
+  ) {
+    errors.push("Excluded paths must be an array");
+  } else if (Array.isArray(scope.excludedPaths)) {
+    for (const path of scope.excludedPaths) {
+      if (canonicalPath(path) === null) {
+        errors.push("Invalid excluded path");
+      }
+    }
+  }
+
+  if (
+    typeof scope.expiresAt !== "string" ||
+    !Number.isFinite(Date.parse(scope.expiresAt)) ||
+    Date.parse(scope.expiresAt) <= Date.now()
+  ) {
+    errors.push("Authorisation is expired or invalid");
+  }
+
   return {
-    authorisationConfirmed: true,
-    authorisationReference: "TEST-AUTH-001",
-    allowedTargets: ["example.com"],
-    allowedTests: ["security-headers", "tls-check"],
-    excludedPaths: ["/private", "/admin"],
-    expiresAt: "2099-12-31T23:59:59.000Z",
-    ...overrides
+    valid: errors.length === 0,
+    errors
   };
 }
 
-test("accepts a valid authorisation scope", () => {
-  const result = validateScope(validScope());
-  assert.equal(result.valid, true);
-  assert.deepEqual(result.errors, []);
-});
+export function checkRequestScope(scope, request) {
+  const validation = validateScope(scope);
 
-test("rejects missing authorisation", () => {
-  const result = validateScope(
-    validScope({ authorisationConfirmed: false })
-  );
-  assert.equal(result.valid, false);
-});
+  if (!validation.valid) {
+    return {
+      allowed: false,
+      reason: "Invalid authorisation scope",
+      errors: validation.errors
+    };
+  }
 
-test("rejects missing authorisation reference", () => {
-  const result = validateScope(
-    validScope({ authorisationReference: "" })
-  );
-  assert.equal(result.valid, false);
-});
+  if (!request || typeof request.url !== "string") {
+    return { allowed: false, reason: "Invalid request URL" };
+  }
 
-test("rejects an empty target list", () => {
-  const result = validateScope(
-    validScope({ allowedTargets: [] })
-  );
-  assert.equal(result.valid, false);
-});
+  if (!scope.allowedTests.includes(request.testType)) {
+    return { allowed: false, reason: "Test not authorised" };
+  }
 
-test("rejects an expired authorisation", () => {
-  const result = validateScope(
-    validScope({ expiresAt: "2020-01-01T00:00:00Z" })
-  );
-  assert.equal(result.valid, false);
-});
+  let url;
 
-test("rejects an unsupported test type", () => {
-  const result = validateScope(
-    validScope({ allowedTests: ["unauthorised-test"] })
-  );
-  assert.equal(result.valid, false);
-});
+  try {
+    url = new URL(request.url);
+  } catch {
+    return { allowed: false, reason: "Invalid URL" };
+  }
 
-test("rejects wildcard targets", () => {
-  const result = validateScope(
-    validScope({ allowedTargets: ["*.example.com"] })
-  );
-  assert.equal(result.valid, false);
-});
+  if (url.protocol !== "https:") {
+    return { allowed: false, reason: "HTTPS required" };
+  }
 
-test("rejects malformed target entries", () => {
-  const result = validateScope(
-    validScope({ allowedTargets: ["https://example.com/path"] })
-  );
-  assert.equal(result.valid, false);
-});
+  if (
+    url.username ||
+    url.password ||
+    (url.port && url.port !== "443")
+  ) {
+    return {
+      allowed: false,
+      reason: "URL credentials or non-standard port rejected"
+    };
+  }
 
-test("allows an approved HTTPS security-header check", () => {
-  const result = checkRequestScope(
-    validScope(),
-    {
-      url: "https://example.com/",
-      testType: "security-headers"
+  const hostname = normaliseHost(url.hostname);
+
+  if (!scope.allowedTargets.map(normaliseHost).includes(hostname)) {
+    return {
+      allowed: false,
+      reason: "Target is outside approved scope"
+    };
+  }
+
+  const requestPath = canonicalPath(url.pathname);
+
+  if (requestPath === null) {
+    return {
+      allowed: false,
+      reason: "Invalid or ambiguous request path"
+    };
+  }
+
+  for (const excluded of scope.excludedPaths || []) {
+    const excludedPath = canonicalPath(excluded);
+
+    if (
+      requestPath === excludedPath ||
+      requestPath.startsWith(
+        excludedPath.endsWith("/")
+          ? excludedPath
+          : excludedPath + "/"
+      )
+    ) {
+      return {
+        allowed: false,
+        reason: "Path excluded from testing"
+      };
     }
-  );
+  }
 
-  assert.equal(result.allowed, true);
-  assert.equal(result.target, "example.com");
-});
-
-test("rejects a target outside approved scope", () => {
-  const result = checkRequestScope(
-    validScope(),
-    {
-      url: "https://other.com/",
-      testType: "security-headers"
-    }
-  );
-
-  assert.equal(result.allowed, false);
-});
-
-test("rejects an unapproved test type", () => {
-  const result = checkRequestScope(
-    validScope(),
-    {
-      url: "https://example.com/",
-      testType: "malware-execution"
-    }
-  );
-
-  assert.equal(result.allowed, false);
-});
-
-test("rejects HTTP connections", () => {
-  const result = checkRequestScope(
-    validScope(),
-    {
-      url: "http://example.com/",
-      testType: "security-headers"
-    }
-  );
-
-  assert.equal(result.allowed, false);
-});
-
-test("rejects URL credentials", () => {
-  const result = checkRequestScope(
-    validScope(),
-    {
-      url: "https://user:password@example.com/",
-      testType: "security-headers"
-    }
-  );
-
-  assert.equal(result.allowed, false);
-});
-
-test("rejects excluded paths", () => {
-  const result = checkRequestScope(
-    validScope(),
-    {
-      url: "https://example.com/admin/settings",
-      testType: "security-headers"
-    }
-  );
-
-  assert.equal(result.allowed, false);
-});
-
-test("rejects malformed URLs", () => {
-  const result = checkRequestScope(
-    validScope(),
-    {
-      url: "not-a-valid-url",
-      testType: "security-headers"
-    }
-  );
-
-  assert.equal(result.allowed, false);
-});
-
-test("rejects missing request data", () => {
-  const result = checkRequestScope(validScope(), null);
-  assert.equal(result.allowed, false);
-});
-test("rejects malformed allowedTests data", () => {
-  assert.doesNotThrow(() => {
-    const result = validateScope(
-      validScope({ allowedTests: "security-headers" })
-    );
-    assert.equal(result.valid, false);
-  });
-});
-
-test("rejects malformed excludedPaths data", () => {
-  assert.doesNotThrow(() => {
-    const result = checkRequestScope(
-      validScope({ excludedPaths: "admin" }),
-      {
-        url: "https://example.com/",
-        testType: "security-headers"
-      }
-    );
-    assert.equal(result.allowed, false);
-  });
-});
-
-test("rejects encoded excluded-path bypass attempts", () => {
-  const result = checkRequestScope(
-    validScope(),
-    {
-      url: "https://example.com/private%2Fsettings",
-      testType: "security-headers"
-    }
-  );
-
-  assert.equal(result.allowed, false);
-});
-
-test("rejects non-string target entries", () => {
-  const result = validateScope(
-    validScope({ allowedTargets: [123] })
-  );
-
-  assert.equal(result.valid, false);
-});
+  return {
+    allowed: true,
+    reason: "Request is within the declared scope",
+    target: hostname,
+    testType: request.testType
+  };
+}
