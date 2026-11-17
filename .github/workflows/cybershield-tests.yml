@@ -1,0 +1,31 @@
+
+name: CyberShield Security Tests
+
+on:
+  push:
+    branches:
+      - feature/nyra-cybershield
+    paths:
+      - "cybershield/**"
+      - ".github/workflows/cybershield-tests.yml"
+  pull_request:
+    paths:
+      - "cybershield/**"
+      - ".github/workflows/cybershield-tests.yml"
+
+jobs:
+  test:
+    name: Run CyberShield Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run security module tests
+        run: node --experimental-default-type=module --test cybershield/tests/*.test.js
