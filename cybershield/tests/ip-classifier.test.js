@@ -60,3 +60,8 @@ test("handles IPv4-mapped IPv6 addresses", () => {
 test("rejects IPv6 transition addresses", () => {
   assert.equal(isPublicIp("2002::1"), false);
 });
+test("rejects additional special-purpose IPv6 addresses", () => {
+  assert.equal(isPublicIp("2001:20::1"), false);
+  assert.equal(isPublicIp("64:ff9b::808:808"), false);
+  assert.equal(isPublicIp("5f00::1"), false);
+});
