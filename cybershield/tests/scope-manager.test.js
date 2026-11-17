@@ -163,3 +163,44 @@ test("rejects missing request data", () => {
   const result = checkRequestScope(validScope(), null);
   assert.equal(result.allowed, false);
 });
+test("rejects malformed allowedTests data", () => {
+  assert.doesNotThrow(() => {
+    const result = validateScope(
+      validScope({ allowedTests: "security-headers" })
+    );
+    assert.equal(result.valid, false);
+  });
+});
+
+test("rejects malformed excludedPaths data", () => {
+  assert.doesNotThrow(() => {
+    const result = checkRequestScope(
+      validScope({ excludedPaths: "admin" }),
+      {
+        url: "https://example.com/",
+        testType: "security-headers"
+      }
+    );
+    assert.equal(result.allowed, false);
+  });
+});
+
+test("rejects encoded excluded-path bypass attempts", () => {
+  const result = checkRequestScope(
+    validScope(),
+    {
+      url: "https://example.com/private%2Fsettings",
+      testType: "security-headers"
+    }
+  );
+
+  assert.equal(result.allowed, false);
+});
+
+test("rejects non-string target entries", () => {
+  const result = validateScope(
+    validScope({ allowedTargets: [123] })
+  );
+
+  assert.equal(result.valid, false);
+});
