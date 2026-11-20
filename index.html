@@ -136,7 +136,7 @@ async function initializeNyra() {
       },
       body: JSON.stringify({
         action: "load",
-        conversationId
+        conversation_id: conversationId
       })
     });
 
@@ -172,7 +172,7 @@ form.addEventListener("submit", async event => {
       },
       body: JSON.stringify({
         message,
-        conversationId
+        conversation_id: conversationId
       })
     });
 
