@@ -203,6 +203,27 @@
       $("message").style.color = isError ? "#ff9b91" : "#ffc56b";
     }
 
+function syncTargetToEvidence() {
+  const target = $("target").value.trim();
+  if (!target) return;
+
+  try {
+    const raw = $("evidence").value.trim();
+    const evidence = raw ? JSON.parse(raw) : {};
+
+    if (!evidence || typeof evidence !== "object" || Array.isArray(evidence)) {
+      throw new Error("Evidence must be a JSON object.");
+    }
+
+    evidence.target = target;
+    $("evidence").value = JSON.stringify(evidence, null, 2);
+  } catch (error) {
+    setMessage("Please correct the Evidence JSON before synchronising.", true);
+  }
+}
+
+$("target").addEventListener("change", syncTargetToEvidence);
+
     function escapeHtml(value) {
       return String(value ?? "").replace(/[&<>"']/g, char => ({
         "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
