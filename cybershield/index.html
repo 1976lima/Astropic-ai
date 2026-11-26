@@ -222,7 +222,7 @@ function syncTargetToEvidence() {
   }
 }
 
-$("target").addEventListener("change", syncTargetToEvidence);
+$("target").addEventListener("input", syncTargetToEvidence);
 
     function escapeHtml(value) {
       return String(value ?? "").replace(/[&<>"']/g, char => ({
