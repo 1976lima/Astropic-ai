@@ -134,13 +134,10 @@ function pinnedLookup(addresses) {
 
   return (_hostname, options, callback) => {
     if (options?.all) {
-      callback(
-        null,
-        addresses.map(item => ({
-          address: item.address,
-          family: item.family
-        }))
-      );
+      callback(null, addresses.map(item => ({
+        address: item.address,
+        family: item.family
+      })));
       return;
     }
 
@@ -281,24 +278,24 @@ export async function collectPassiveEvidence(target) {
   if (
     !destination?.allowed ||
     !Array.isArray(destination.addresses) ||
-    !destination.addresses.length
+    destination.addresses.length === 0
   ) {
     throw new Error(
       destination?.reason ||
-      "The target did not pass DNS and public-IP validation."
+      "DNS and public-IP validation failed."
     );
   }
 
-  const addresses = destination.addresses;
+  const addresses = destination.addresses.map(address => ({
+    address,
+    family: isIP(address)
+  }));
 
   if (addresses.some(item =>
-    !item ||
-    typeof item.address !== "string" ||
-    ![4, 6].includes(item.family) ||
-    !isPublicIp(item.address)
+    item.family === 0 || !isPublicIp(item.address)
   )) {
     throw new Error(
-      "DNS returned an invalid or non-public address; assessment blocked."
+      "A non-public or invalid IP address was detected."
     );
   }
 
@@ -310,11 +307,11 @@ export async function collectPassiveEvidence(target) {
   return {
     target: host,
     collectionMethod:
-      "Authorised, DNS-validated, IP-pinned passive HTTPS HEAD and TLS certificate inspection",
+      "Authorised, DNS-validated, IP-pinned passive HTTPS HEAD and TLS inspection",
     collectedAt: new Date().toISOString(),
     dns: {
       addresses: addresses.map(item => item.address),
-      validatedAt: destination.validatedAt || null
+      validatedAt: destination.validatedAt
     },
     http,
     tls: certificate,
