@@ -328,14 +328,18 @@ document.querySelectorAll("[data-prompt]").forEach(button => {
   });
 });
 
+
 chatForm.addEventListener("submit", async event => {
   event.preventDefault();
+
   const task = input.value.trim();
   if (!task || chatBusy) return;
+
   if (task.length > 8000) {
     addMessage("Please keep your message under 8,000 characters.", "nyra");
     return;
   }
+
   if (!authReady || !supabaseClient || !currentUser) {
     addMessage("Nyra is still starting. Please wait a moment and try again.", "nyra");
     return;
@@ -344,24 +348,73 @@ chatForm.addEventListener("submit", async event => {
   chatBusy = true;
   sendButton.disabled = true;
   input.disabled = true;
+
+  // Show the user's message immediately.
+  addMessage("You: " + task, "user");
+  input.value = "";
+
+  // Show Nyra's thinking indicator.
   const thinking = addMessage("Nyra is thinking…", "nyra");
+
   try {
     const token = await getAccessToken();
+
     const response = await fetch(CHAT_ENDPOINT, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
-      body: JSON.stringify({ message: task, conversation_id: currentConversationId })
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token
+      },
+      body: JSON.stringify({
+        message: task,
+        conversation_id: currentConversationId
+      })
     });
+
     const data = await response.json();
-    if (!response.ok) throw new Error(data.error || "Request failed.");
-    if (typeof data.reply !== "string" || !data.reply.trim() || !data.conversation_id) {
+
+    if (!response.ok) {
+      throw new Error(data.error || "Request failed.");
+    }
+
+    if (
+      typeof data.reply !== "string" ||
+      !data.reply.trim() ||
+      !data.conversation_id
+    ) {
       throw new Error("Nyra returned an incomplete response.");
     }
+
     currentConversationId = data.conversation_id;
-    localStorage.setItem(conversationStorageKey(currentUser.id), currentConversationId);
+
+    localStorage.setItem(
+      conversationStorageKey(currentUser.id),
+      currentConversationId
+    );
+
     thinking.remove();
-    addMessage("You: " + task, "user");
+
     addMessage("Nyra: " + data.reply, "nyra");
+
+  } catch (error) {
+    console.error("Nyra chat error:", error);
+
+    thinking.remove();
+
+    addMessage(
+      "Nyra couldn't complete your request. " +
+      (error.message || "Please try again."),
+      "nyra"
+    );
+
+  } finally {
+    chatBusy = false;
+    sendButton.disabled = false;
+    input.disabled = false;
+    input.focus();
+  }
+});
+
     input.value = "";
   } catch (error) {
     console.error("Nyra chat error:", error);
