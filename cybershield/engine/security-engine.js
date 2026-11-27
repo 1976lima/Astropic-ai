@@ -1,3 +1,4 @@
+
 const POINTS = {
   critical: 40,
   high: 25,
@@ -10,6 +11,7 @@ const RULES = [
   ["strict-transport-security", "HSTS missing", "medium"],
   ["content-security-policy", "CSP missing", "medium"],
   ["x-content-type-options", "Content type protection missing", "low"],
+  ["x-frame-options", "Clickjacking protection header missing", "low"],
   ["referrer-policy", "Referrer policy missing", "low"],
   ["permissions-policy", "Permissions policy missing", "info"]
 ];
@@ -19,13 +21,18 @@ export function analyseEvidence(evidence) {
     throw new Error("Valid hostname evidence required");
   }
 
+  // Accept both live collector and manually supplied evidence.
+  const headers = evidence.http?.headers || evidence.headers || {};
+  const tls = evidence.tls || {};
+
   const findings = [];
-  const headers = evidence.headers || {};
 
   for (const [key, title, severity] of RULES) {
-    if (!Object.keys(headers).some(
-      h => h.toLowerCase() === key
-    )) {
+    const present = Object.keys(headers).some(
+      header => header.toLowerCase() === key
+    );
+
+    if (!present) {
       findings.push({
         id: "HDR-" + key.toUpperCase(),
         title,
@@ -36,7 +43,16 @@ export function analyseEvidence(evidence) {
     }
   }
 
-  if (evidence.tls?.checked && evidence.tls.valid === false) {
+  const tlsChecked =
+    typeof tls.checked === "boolean" ? tls.checked :
+    typeof tls.authorized === "boolean";
+
+  const tlsValid =
+    typeof tls.valid === "boolean" ? tls.valid :
+    typeof tls.authorized === "boolean" ? tls.authorized :
+    null;
+
+  if (tlsChecked && tlsValid === false) {
     findings.push({
       id: "TLS-001",
       title: "TLS certificate validation failed",
@@ -47,8 +63,9 @@ export function analyseEvidence(evidence) {
   }
 
   if (
-    evidence.tls?.valid === true &&
-    evidence.tls.daysUntilExpiry <= 21
+    tlsValid === true &&
+    Number.isFinite(tls.daysUntilExpiry) &&
+    tls.daysUntilExpiry <= 21
   ) {
     findings.push({
       id: "TLS-002",
@@ -60,30 +77,42 @@ export function analyseEvidence(evidence) {
   }
 
   const counts = {
-    critical: 0, high: 0, medium: 0, low: 0, info: 0
+    critical: 0,
+    high: 0,
+    medium: 0,
+    low: 0,
+    info: 0
   };
 
   let deductions = 0;
 
-  findings.forEach(f => {
-    counts[f.severity]++;
-    deductions += POINTS[f.severity];
+  findings.forEach(finding => {
+    counts[finding.severity]++;
+    deductions += POINTS[finding.severity] ?? 0;
   });
-
-  const score = Math.max(0, 100 - deductions);
 
   return {
     product: "Nyra CyberShield",
     target: evidence.target,
-    score,
+    score: Math.max(0, 100 - deductions),
     findings,
     counts,
     generatedAt: new Date().toISOString(),
-    assessmentType: "evidence-analysis-only",
+    assessmentType: "Live passive HTTPS evidence analysis",
+    evidenceSummary: {
+      httpStatus: evidence.http?.statusCode ?? null,
+      headersChecked: Object.keys(headers).length,
+      tlsChecked,
+      tlsValid,
+      tlsProtocol: tls.protocol || null,
+      certificateExpiry: tls.validTo || null,
+      dnsAddresses: evidence.dns?.addresses || []
+    },
     limitations: [
-      "Analyses supplied evidence only.",
-      "Does not scan or contact live websites.",
-      "Score is not a security certification."
+      "Only the public HTTPS homepage is assessed.",
+      "Only the security headers collected by the assessment are evaluated.",
+      "No port scanning, exploitation or authenticated testing is performed.",
+      "The score is a preliminary heuristic, not a security certification."
     ]
   };
 }
