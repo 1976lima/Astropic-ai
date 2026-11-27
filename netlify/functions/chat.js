@@ -11,15 +11,257 @@ function send(status, body) {
   });
 }
 
+function getEnv(name) {
+  return Netlify.env.get(name);
+}
+
+async function supabaseRequest(path, token, options = {}) {
+  const baseUrl = getEnv("SUPABASE_URL");
+  const publishableKey = getEnv("SUPABASE_PUBLISHABLE_KEY");
+
+  const response = await fetch(`${baseUrl}/rest/v1/${path}`, {
+    ...options,
+    headers: {
+      apikey: publishableKey,
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+      ...(options.headers || {})
+    }
+  });
+
+  const text = await response.text();
+  const data = text ? JSON.parse(text) : null;
+
+  if (!response.ok) {
+    console.error("Supabase request failed:", response.status, data);
+    throw new Error("Conversation storage request failed.");
+  }
+
+  return data;
+}
+
+async function verifyUser(token) {
+  const response = await fetch(`${getEnv("SUPABASE_URL")}/auth/v1/user`, {
+    headers: {
+      apikey: getEnv("SUPABASE_PUBLISHABLE_KEY"),
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  if (!response.ok) return null;
+
+  return response.json();
+}
+
+async function getConversation(conversationId, userId, token) {
+  const query = new URLSearchParams({
+    id: `eq.${conversationId}`,
+    user_id: `eq.${userId}`,
+    select: "id",
+    limit: "1"
+  });
+
+  const rows = await supabaseRequest(
+    `conversations?${query}`,
+    token
+  );
+
+  return rows?.[0] || null;
+}
+
+async function loadConversation(conversationId, userId, token) {
+  const conversation = await getConversation(
+    conversationId,
+    userId,
+    token
+  );
+
+  if (!conversation) return null;
+
+  const query = new URLSearchParams({
+    conversation_id: `eq.${conversationId}`,
+    user_id: `eq.${userId}`,
+    select: "role,content,created_at",
+    order: "created_at.asc",
+    limit: "100"
+  });
+
+  const rows = await supabaseRequest(
+    `messages?${query}`,
+    token
+  );
+
+  return rows.map(row => ({
+    role: row.role,
+    content: row.content
+  }));
+}
+
+async function saveConversation(conversationId, userId, message, reply, token) {
+  let activeId = conversationId;
+
+  if (activeId) {
+    const existing = await getConversation(activeId, userId, token);
+    if (!existing) {
+      throw new Error("Conversation not found.");
+    }
+  } else {
+    const created = await supabaseRequest(
+      "conversations",
+      token,
+      {
+        method: "POST",
+        headers: { Prefer: "return=representation" },
+        body: JSON.stringify({
+          user_id: userId,
+          title: message.slice(0, 80)
+        })
+      }
+    );
+
+    if (!created?.[0]?.id) {
+      throw new Error("Could not create conversation.");
+    }
+
+    activeId = created[0].id;
+  }
+
+  await supabaseRequest(
+    "messages",
+    token,
+    {
+      method: "POST",
+      headers: { Prefer: "return=minimal" },
+      body: JSON.stringify([
+        {
+          conversation_id: activeId,
+          user_id: userId,
+          role: "user",
+          content: message
+        },
+        {
+          conversation_id: activeId,
+          user_id: userId,
+          role: "assistant",
+          content: reply
+        }
+      ])
+    }
+  );
+
+  await supabaseRequest(
+    `conversations?id=eq.${encodeURIComponent(activeId)}`,
+    token,
+    {
+      method: "PATCH",
+      headers: { Prefer: "return=minimal" },
+      body: JSON.stringify({
+        updated_at: new Date().toISOString()
+      })
+    }
+  );
+
+  return activeId;
+}
+
+async function generateReply(message, history) {
+  const apiKey = getEnv("OPENAI_API_KEY");
+
+  if (!apiKey) {
+    throw new Error("AI service configuration is incomplete.");
+  }
+
+  const conversation = [
+    ...history.slice(-30),
+    { role: "user", content: message }
+  ];
+
+  const response = await fetch(
+    "https://api.openai.com/v1/responses",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "gpt-6.1-terra",
+        reasoning: { effort: "low" },
+        tools: [{ type: "web_search" }],
+        tool_choice: "auto",
+        input: conversation
+      })
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    console.error("OpenAI API error:", response.status, data);
+    throw new Error("The AI service could not complete your request.");
+  }
+
+  const reply =
+    data.output_text ||
+    data.output
+      ?.flatMap(item => item.content || [])
+      .filter(item => item.type === "output_text")
+      .map(item => item.text)
+      .join("\n") ||
+    "";
+
+  if (!reply.trim()) {
+    throw new Error("Nyra could not generate a response.");
+  }
+
+  return reply.trim();
+}
+
 export default async (req) => {
-  if (req.method !== "POST") {
+  if (!["GET", "POST"].includes(req.method)) {
     return send(405, { error: "Method not allowed." });
   }
 
   try {
-    const body = await req.json();
+    const authorization = req.headers.get("authorization") || "";
+    const token = authorization.startsWith("Bearer ")
+      ? authorization.slice(7)
+      : "";
 
-    const { message, history = [] } = body || {};
+    if (!token) {
+      return send(401, { error: "Authentication required." });
+    }
+
+    const user = await verifyUser(token);
+
+    if (!user?.id) {
+      return send(401, { error: "Invalid or expired session." });
+    }
+
+    if (req.method === "GET") {
+      const url = new URL(req.url);
+      const conversationId = url.searchParams.get("conversation_id");
+
+      if (!conversationId) {
+        return send(400, { error: "Conversation ID required." });
+      }
+
+      const history = await loadConversation(
+        conversationId,
+        user.id,
+        token
+      );
+
+      if (!history) {
+        return send(404, { error: "Conversation not found." });
+      }
+
+      return send(200, { history });
+    }
+
+    const body = await req.json();
+    const message = body?.message;
+    const conversationId = body?.conversation_id || null;
 
     if (
       typeof message !== "string" ||
@@ -31,112 +273,47 @@ export default async (req) => {
       });
     }
 
-    if (!Array.isArray(history) || history.length > 30) {
-      return send(400, {
-        error: "Invalid conversation history."
-      });
+    if (
+      conversationId !== null &&
+      (typeof conversationId !== "string" || conversationId.length > 100)
+    ) {
+      return send(400, { error: "Invalid conversation ID." });
     }
 
-    const validHistory = [];
+    let history = [];
 
-    for (const item of history) {
-      if (
-        !item ||
-        !["user", "assistant"].includes(item.role) ||
-        typeof item.content !== "string" ||
-        !item.content.trim() ||
-        item.content.length > 8000
-      ) {
-        return send(400, {
-          error: "Invalid conversation history entry."
-        });
-      }
-
-      validHistory.push({
-        role: item.role,
-        content: item.content
-      });
-    }
-
-    // Keep only the latest 30 messages.
-    const conversation = [
-      ...validHistory.slice(-30),
-      {
-        role: "user",
-        content: message.trim()
-      }
-    ];
-
-    const apiKey = Netlify.env.get("OPENAI_API_KEY");
-
-    if (!apiKey) {
-      console.error("OPENAI_API_KEY is missing.");
-
-      return send(500, {
-        error: "AI service configuration is incomplete."
-      });
-    }
-
-    const response = await fetch(
-      "https://api.openai.com/v1/responses",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          model: "gpt-6.1-terra",
-          reasoning: { effort: "low" },
-          tools: [
-            { type: "web_search" }
-          ],
-          tool_choice: "auto",
-          input: conversation
-        })
-      }
-    );
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      console.error(
-        "OpenAI API error:",
-        response.status,
-        data
+    if (conversationId) {
+      history = await loadConversation(
+        conversationId,
+        user.id,
+        token
       );
 
-      return send(502, {
-        error: "The AI service could not complete your request."
-      });
+      if (!history) {
+        return send(404, { error: "Conversation not found." });
+      }
     }
 
-    const reply =
-      data.output_text ||
-      data.output
-        ?.flatMap(item => item.content || [])
-        .filter(item => item.type === "output_text")
-        .map(item => item.text)
-        .join("\n") ||
-      "";
+    const reply = await generateReply(message.trim(), history);
 
-    if (!reply.trim()) {
-      console.error("OpenAI returned no text output.");
-
-      return send(502, {
-        error: "Nyra could not generate a response."
-      });
-    }
+    const savedConversationId = await saveConversation(
+      conversationId,
+      user.id,
+      message.trim(),
+      reply,
+      token
+    );
 
     return send(200, {
-      reply: reply.trim()
+      reply,
+      conversation_id: savedConversationId
     });
 
   } catch (error) {
     console.error("Nyra chat handler error:", error);
 
     return send(500, {
-      error: "The server encountered an error."
+      error: error.message || "The server encountered an error."
     });
   }
 };
