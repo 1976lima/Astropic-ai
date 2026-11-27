@@ -228,9 +228,12 @@ $("target").addEventListener("input", syncTargetToEvidence);
       return String(value ?? "").replace(/[&<>"']/g, char => ({
         "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
       })[char]);
-    }
+    
 async function loadSample() {
   setMessage("Loading sample evidence…");
+
+  // Preserve the hostname already entered.
+  const existingTarget = $("target").value.trim();
 
   try {
     const response = await fetch(
@@ -243,6 +246,28 @@ async function loadSample() {
         "Sample file could not be loaded. You can upload or paste JSON instead."
       );
     }
+
+    const evidence = await response.json();
+
+    // Use the entered hostname instead of example.com.
+    if (existingTarget) {
+      evidence.target = existingTarget;
+    }
+
+    $("evidence").value = JSON.stringify(evidence, null, 2);
+    $("target").value = existingTarget;
+
+    setMessage(
+      existingTarget
+        ? `Sample evidence loaded for ${existingTarget}. Note: this is demonstration evidence, not a live scan.`
+        : "Sample evidence loaded. Enter an authorised target hostname before analysis."
+    );
+
+  } catch (error) {
+    setMessage(error.message, true);
+  }
+}
+
 
     const evidence = await response.json();
 
