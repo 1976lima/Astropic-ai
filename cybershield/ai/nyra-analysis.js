@@ -62,6 +62,60 @@ function explainFinding(finding) {
 }
 
 export function analyseWithNyra(evidence) {
+  if (
+    !evidence ||
+    typeof evidence.target !== "string" ||
+    !evidence.http ||
+    !evidence.tls
+  ) {
+    throw new Error("Complete live assessment evidence is required.");
+  }
+
+  const result = analyseEvidence(evidence);
+
+  const findings = (result.findings || [])
+    .map(explainFinding)
+    .sort((a, b) =>
+      (SEVERITY_ORDER[a.severity] ?? 4) -
+      (SEVERITY_ORDER[b.severity] ?? 4)
+    );
+
+  const counts = {
+    critical: 0,
+    high: 0,
+    medium: 0,
+    low: 0,
+    info: 0
+  };
+
+  findings.forEach(finding => {
+    if (Object.hasOwn(counts, finding.severity)) {
+      counts[finding.severity]++;
+    }
+  });
+
+  const score = result.score;
+
+  return {
+    product: "Nyra AI | CyberShield",
+    target: evidence.target,
+    score,
+    riskLevel: riskLabel(score),
+    findings,
+    counts,
+    totalFindings: findings.length,
+    recommendations: [...new Set(findings.map(f => f.action))],
+    generatedAt: new Date().toISOString(),
+    assessmentType: "Live passive HTTPS assessment",
+    collectionMethod: evidence.collectionMethod,
+    evidenceSummary: result.evidenceSummary,
+    dns: evidence.dns,
+    http: evidence.http,
+    tls: evidence.tls,
+    limitations: result.limitations
+  };
+}
+
   if (!evidence || typeof evidence !== "object") {
     throw new Error("Valid security evidence is required.");
   }
