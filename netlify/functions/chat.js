@@ -1,85 +1,142 @@
+
+const JSON_HEADERS = {
+  "Content-Type": "application/json",
+  "Cache-Control": "no-store"
+};
+
+function send(status, body) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: JSON_HEADERS
+  });
+}
+
 export default async (req) => {
   if (req.method !== "POST") {
-    return new Response(
-      JSON.stringify({ error: "Method not allowed" }),
-      {
-        status: 405,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    return send(405, { error: "Method not allowed." });
   }
 
   try {
-    const { message } = await req.json();
+    const body = await req.json();
 
-    if (!message || typeof message !== "string") {
-      return new Response(
-        JSON.stringify({ error: "Please enter a message." }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+    const { message, history = [] } = body || {};
+
+    if (
+      typeof message !== "string" ||
+      !message.trim() ||
+      message.length > 8000
+    ) {
+      return send(400, {
+        error: "Please enter a valid message under 8,000 characters."
+      });
     }
+
+    if (!Array.isArray(history) || history.length > 30) {
+      return send(400, {
+        error: "Invalid conversation history."
+      });
+    }
+
+    const validHistory = [];
+
+    for (const item of history) {
+      if (
+        !item ||
+        !["user", "assistant"].includes(item.role) ||
+        typeof item.content !== "string" ||
+        !item.content.trim() ||
+        item.content.length > 8000
+      ) {
+        return send(400, {
+          error: "Invalid conversation history entry."
+        });
+      }
+
+      validHistory.push({
+        role: item.role,
+        content: item.content
+      });
+    }
+
+    // Keep only the latest 30 messages.
+    const conversation = [
+      ...validHistory.slice(-30),
+      {
+        role: "user",
+        content: message.trim()
+      }
+    ];
 
     const apiKey = Netlify.env.get("OPENAI_API_KEY");
 
     if (!apiKey) {
-      throw new Error("OpenAI API key is not configured.");
+      console.error("OPENAI_API_KEY is missing.");
+
+      return send(500, {
+        error: "AI service configuration is incomplete."
+      });
     }
 
-    const response = await fetch("https://api.openai.com/v1/responses", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-  model: "gpt-6.1-terra",
-  reasoning: { effort: "low" },
-  tools: [
-    { type: "web_search" }
-  ],
-  tool_choice: "auto",
-  input: message,
-}),
-    });
+    const response = await fetch(
+      "https://api.openai.com/v1/responses",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "gpt-6.1-terra",
+          reasoning: { effort: "low" },
+          tools: [
+            { type: "web_search" }
+          ],
+          tool_choice: "auto",
+          input: conversation
+        })
+      }
+    );
 
     const data = await response.json();
 
     if (!response.ok) {
-  console.error("OpenAI API error:", response.status, data);
-  return new Response(
-        JSON.stringify({ error: "The AI service could not complete your request." }),
-        {
-          status: 502,
-          headers: { "Content-Type": "application/json" },
-        }
+      console.error(
+        "OpenAI API error:",
+        response.status,
+        data
       );
+
+      return send(502, {
+        error: "The AI service could not complete your request."
+      });
     }
 
     const reply =
       data.output_text ||
-      data.output?.flatMap(item => item.content || [])
+      data.output
+        ?.flatMap(item => item.content || [])
         .filter(item => item.type === "output_text")
         .map(item => item.text)
         .join("\n") ||
-      "I couldn't generate a response.";
+      "";
 
-    return new Response(
-      JSON.stringify({ reply }),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    if (!reply.trim()) {
+      console.error("OpenAI returned no text output.");
+
+      return send(502, {
+        error: "Nyra could not generate a response."
+      });
+    }
+
+    return send(200, {
+      reply: reply.trim()
+    });
+
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: "The server encountered an error." }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    console.error("Nyra chat handler error:", error);
+
+    return send(500, {
+      error: "The server encountered an error."
+    });
   }
 };
