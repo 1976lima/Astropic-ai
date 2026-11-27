@@ -228,7 +228,7 @@ $("target").addEventListener("input", syncTargetToEvidence);
       return String(value ?? "").replace(/[&<>"']/g, char => ({
         "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
       })[char]);
-    
+    } 
 async function loadSample() {
   setMessage("Loading sample evidence…");
 
@@ -268,21 +268,6 @@ async function loadSample() {
   }
 }
 
-
-    const evidence = await response.json();
-
-    $("evidence").value = JSON.stringify(evidence, null, 2);
-
-    // Keep the target field empty.
-    $("target").value = "";
-
-    setMessage(
-      "Sample evidence loaded. Enter an authorised target hostname before analysis."
-    );
-  } catch (error) {
-    setMessage(error.message, true);
-  }
-}
 
     function renderReport(report) {
       latestReport = report;
