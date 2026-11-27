@@ -592,10 +592,28 @@
   </main>
 
   <script type="module">
-    import { formatNyraReport } from "./ai/nyra-analysis.js";
+    function formatNyraReport(report) {
+  return [
+    "NYRA AI - CYBERSHIELD SECURITY REPORT",
+    "Target: " + report.target,
+    "Security score: " + report.score,
+    "Risk level: " + report.riskLevel,
+    "",
+    ...report.findings.map((f, i) =>
+      `${i + 1}. ${f.title}\nSeverity: ${f.severity}\nAction: ${f.action}`
+    ),
+    "",
+    "LIMITATIONS",
+    ...(report.limitations || [])
+  ].join("\n");
+    }
 
     const $ = id => document.getElementById(id);
+console.log("CYBERSHIELD SCRIPT LOADED");
 
+window.addEventListener("error", event => {
+  console.error("CyberShield error:", event.message);
+});
     let latestReport = null;
 
     function setMessage(message, isError = false) {
