@@ -129,3 +129,59 @@ export function checkRequestScope(scope, request) {
     testType: request.testType
   };
 }
+export function checkPassiveRequestScope(request) {
+  if (!request || typeof request.url !== "string") {
+    return {
+      allowed: false,
+      reason: "Invalid request URL"
+    };
+  }
+
+  const allowedPassiveTests = new Set([
+    "security-headers",
+    "tls-check"
+  ]);
+
+  if (!allowedPassiveTests.has(request.testType)) {
+    return {
+      allowed: false,
+      reason: "Only passive HTTPS header and TLS checks are permitted"
+    };
+  }
+
+  let url;
+
+  try {
+    url = new URL(request.url);
+  } catch {
+    return {
+      allowed: false,
+      reason: "Invalid URL"
+    };
+  }
+
+  if (url.protocol !== "https:") {
+    return {
+      allowed: false,
+      reason: "HTTPS required"
+    };
+  }
+
+  if (
+    url.username ||
+    url.password ||
+    url.port
+  ) {
+    return {
+      allowed: false,
+      reason: "Credentials and custom ports rejected"
+    };
+  }
+
+  return {
+    allowed: true,
+    reason: "Passive HTTPS assessment permitted",
+    target: url.hostname.toLowerCase(),
+    testType: request.testType
+  };
+}
