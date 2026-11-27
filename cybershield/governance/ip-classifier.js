@@ -16,7 +16,8 @@ const IPV4_BLOCKED = [
   ["198.51.100.0", 24],
   ["203.0.113.0", 24],
   ["224.0.0.0", 4],
-  ["240.0.0.0", 4]
+  ["240.0.0.0", 4],
+  ["255.255.255.255", 32]
 ];
 
 function ipv4Number(ip) {
@@ -43,11 +44,11 @@ function inIPv4Range(ip, network, prefix) {
 }
 
 function expandIPv6(ip) {
-  if (isIP(ip) !== 6) return null;
+  if (isIP(ip) !== 6 || ip.includes("%")) {
+    return null;
+  }
 
   let address = ip.toLowerCase();
-
-  if (address.includes("%")) return null;
 
   if (address.includes(".")) {
     const lastColon = address.lastIndexOf(":");
@@ -56,11 +57,11 @@ function expandIPv6(ip) {
 
     if (number === null) return null;
 
-    const high = ((number >>> 16) & 0xffff)
-      .toString(16);
+    const high = ((number >>> 16) & 0xffff).toString(16);
     const low = (number & 0xffff).toString(16);
 
-    address = address.slice(0, lastColon + 1) +
+    address =
+      address.slice(0, lastColon + 1) +
       high + ":" + low;
   }
 
@@ -69,16 +70,19 @@ function expandIPv6(ip) {
   if (halves.length > 2) return null;
 
   const left = halves[0] ? halves[0].split(":") : [];
-  const right = halves.length === 2 && halves[1]
-    ? halves[1].split(":")
-    : [];
+  const right =
+    halves.length === 2 && halves[1]
+      ? halves[1].split(":")
+      : [];
 
   const missing = 8 - left.length - right.length;
 
   if (
     (halves.length === 1 && missing !== 0) ||
     (halves.length === 2 && missing < 1)
-  ) return null;
+  ) {
+    return null;
+  }
 
   const words = [
     ...left,
@@ -89,7 +93,9 @@ function expandIPv6(ip) {
   if (
     words.length !== 8 ||
     words.some(w => !/^[0-9a-f]{1,4}$/.test(w))
-  ) return null;
+  ) {
+    return null;
+  }
 
   return words.map(w => parseInt(w, 16));
 }
@@ -110,7 +116,7 @@ function prefixMatch(words, network, prefix) {
     remaining -= bits;
   }
 
-  return true;
+  return remaining <= 0;
 }
 
 function ipv6ToIPv4(words) {
@@ -129,7 +135,7 @@ export function classifyIp(input) {
 
   const ip = input.trim();
 
-  if (!ip || ip.length > 45) {
+  if (!ip || ip.length > 45 || ip.includes("%")) {
     return { valid: false, category: "invalid" };
   }
 
@@ -157,7 +163,9 @@ export function classifyIp(input) {
       return { valid: false, category: "invalid" };
     }
 
-    const mapped = words.slice(0, 5).every(w => w === 0) &&
+    // Detect IPv4-mapped IPv6 addresses.
+    const mapped =
+      words.slice(0, 5).every(w => w === 0) &&
       words[5] === 0xffff;
 
     if (mapped) {
@@ -172,15 +180,17 @@ export function classifyIp(input) {
       };
     }
 
+    // Only consider global-unicast IPv6 space.
     const globalUnicast = prefixMatch(
-      words, [0x2000, 0, 0, 0, 0, 0, 0, 0], 3
+      words,
+      [0x2000, 0, 0, 0, 0, 0, 0, 0],
+      3
     );
 
+    // Exclude special-purpose and transition ranges.
     const excluded = [
-      [[0x2001, 0x0002, 0, 0, 0, 0, 0, 0], 48],
+      [[0x2001, 0, 0, 0, 0, 0, 0, 0], 23],
       [[0x2001, 0x0db8, 0, 0, 0, 0, 0, 0], 32],
-      [[0x2001, 0x0010, 0, 0, 0, 0, 0, 0], 28],
-      [[0x2001, 0x0020, 0, 0, 0, 0, 0, 0], 28],
       [[0x2002, 0, 0, 0, 0, 0, 0, 0], 16],
       [[0x3fff, 0, 0, 0, 0, 0, 0, 0], 20]
     ].some(([network, prefix]) =>
@@ -206,5 +216,6 @@ export function classifyIp(input) {
 
 export function isPublicIp(input) {
   const result = classifyIp(input);
+
   return result.valid && result.isPublic;
 }
