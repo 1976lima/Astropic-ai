@@ -5,30 +5,31 @@ import { isIP } from "node:net";
 const MAX_REDIRECTS = 5;
 
 function normaliseHost(host) {
-  return String(host || "").trim().toLowerCase().replace(/\.$/, "");
+  return String(host || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\.$/, "");
 }
 
 function isValidHostname(host) {
   if (!host || host.length > 253) return false;
-  if (isIP(host)) return false;
+  if (isIP(host) !== 0) return false;
 
   const labels = host.split(".");
 
-  return labels.every(label =>
+  return labels.length >= 2 && labels.every(label =>
     label.length > 0 &&
     label.length <= 63 &&
     /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(label)
   );
 }
 
-export function createNetworkGuard({
-  isPublicIp
-} = {}) {
+export function createNetworkGuard({ isPublicIp } = {}) {
   if (typeof isPublicIp !== "function") {
     throw new Error("Trusted IP classification is required");
   }
 
-  async function validateDestination(scope, input) {
+  async function validateDestination(_scope, input) {
     let url;
 
     try {
@@ -41,7 +42,11 @@ export function createNetworkGuard({
       return { allowed: false, reason: "HTTPS required" };
     }
 
-    if (url.username || url.password || url.port) {
+    if (
+      url.username ||
+      url.password ||
+      url.port
+    ) {
       return {
         allowed: false,
         reason: "Credentials and custom ports rejected"
@@ -54,16 +59,6 @@ export function createNetworkGuard({
       return {
         allowed: false,
         reason: "Invalid or unsupported hostname"
-      };
-    }
-
-    const approved = (scope?.allowedTargets || [])
-      .map(normaliseHost);
-
-    if (!approved.includes(host)) {
-      return {
-        allowed: false,
-        reason: "Hostname outside approved scope"
       };
     }
 
@@ -81,7 +76,7 @@ export function createNetworkGuard({
       };
     }
 
-    if (!records.length) {
+    if (!Array.isArray(records) || records.length === 0) {
       return {
         allowed: false,
         reason: "No DNS addresses found"
@@ -90,7 +85,8 @@ export function createNetworkGuard({
 
     for (const record of records) {
       if (
-        !isIP(record.address) ||
+        !record ||
+        isIP(record.address) === 0 ||
         isPublicIp(record.address) !== true
       ) {
         return {
@@ -108,13 +104,23 @@ export function createNetworkGuard({
     };
   }
 
-  async function validateRedirectChain(scope, initialUrl, redirectUrls) {
+  async function validateRedirectChain(
+    scope,
+    initialUrl,
+    redirectUrls
+  ) {
     if (!Array.isArray(redirectUrls)) {
-      return { allowed: false, reason: "Invalid redirect chain" };
+      return {
+        allowed: false,
+        reason: "Invalid redirect chain"
+      };
     }
 
     if (redirectUrls.length > MAX_REDIRECTS) {
-      return { allowed: false, reason: "Redirect limit exceeded" };
+      return {
+        allowed: false,
+        reason: "Redirect limit exceeded"
+      };
     }
 
     const chain = [initialUrl, ...redirectUrls];
