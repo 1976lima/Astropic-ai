@@ -1,147 +1,551 @@
 
-const messagesEl = document.getElementById('messages');
-const input = document.getElementById('prompt');
-const chatForm = document.getElementById('chatForm');
-const sendButton = chatForm.querySelector('button[type="submit"]');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080d1c">
+  <meta name="description" content="Meet Nyra, the intelligent AI companion from AstropicAI.">
+  <title>Nyra — AI by AstropicAI</title>
 
-// Current-tab session history; survives page refresh.
-const STORAGE_KEY = 'nyra_session_history_v1';
-const MAX_HISTORY = 30;
-
-let history = [];
-
-try {
-  const saved = JSON.parse(sessionStorage.getItem(STORAGE_KEY) || '[]');
-
-  if (Array.isArray(saved)) {
-    history = saved.filter(item =>
-      item &&
-      ['user', 'assistant'].includes(item.role) &&
-      typeof item.content === 'string'
-    ).slice(-MAX_HISTORY);
-  }
-} catch {
-  history = [];
-}
-
-function saveHistory() {
-  try {
-    sessionStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(history.slice(-MAX_HISTORY))
-    );
-  } catch (error) {
-    console.warn('Nyra session history could not be saved.');
-  }
-}
-
-function renderHistory() {
-  messagesEl.replaceChildren();
-
-  const welcome = document.createElement('div');
-  welcome.className = 'message nyra';
-  welcome.textContent =
-    "NYRA\nHello! I'm Nyra, your AI companion from AstropicAI.";
-  messagesEl.appendChild(welcome);
-
-  history.forEach(item => {
-    addMessage(
-      (item.role === 'user' ? 'You: ' : 'Nyra: ') + item.content,
-      item.role === 'user' ? 'user' : 'nyra'
-    );
-  });
-}
-
-function addMessage(text, kind) {
-  const el = document.createElement('div');
-  el.className = 'message ' + kind;
-  el.textContent = text;
-  messagesEl.appendChild(el);
-  messagesEl.scrollTop = messagesEl.scrollHeight;
-}
-
-renderHistory();
-
-document.querySelectorAll('[data-prompt]').forEach(button => {
-  button.addEventListener('click', () => {
-    input.value = button.dataset.prompt;
-    input.focus();
-  });
-});
-
-chatForm.addEventListener('submit', async event => {
-  event.preventDefault();
-
-  const task = input.value.trim();
-  if (!task || sendButton.disabled) return;
-
-  if (task.length > 8000) {
-    addMessage('Please keep your message under 8,000 characters.', 'nyra');
-    return;
-  }
-
-  history.push({ role: 'user', content: task });
-  history = history.slice(-MAX_HISTORY);
-  saveHistory();
-
-  addMessage('You: ' + task, 'user');
-  input.value = '';
-  sendButton.disabled = true;
-
-  const thinking = document.createElement('div');
-  thinking.className = 'message nyra';
-  thinking.textContent = 'Nyra is thinking...';
-  messagesEl.appendChild(thinking);
-  messagesEl.scrollTop = messagesEl.scrollHeight;
-
-  try {
-    const response = await fetch('/nyra/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        message: task,
-        history: history.slice(0, -1)
-      })
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || 'Request failed');
+  <style>
+    * {
+      box-sizing: border-box;
     }
 
-    if (typeof data.reply !== 'string' || !data.reply.trim()) {
-      throw new Error('Nyra returned an empty response.');
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, system-ui, Arial, sans-serif;
+      color: #eef5ff;
+      background: radial-gradient(
+        ellipse at top,
+        #18254b 0,
+        #0b1020 45%,
+        #060914 100%
+      );
     }
 
-    thinking.remove();
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 22px 7%;
+      border-bottom: 1px solid #263451;
+    }
 
-    history.push({
-      role: 'assistant',
-      content: data.reply
+    .brand-logo-img {
+      height: 42px;
+      width: auto;
+      max-width: 70vw;
+      object-fit: contain;
+      display: block;
+    }
+
+    main {
+      width: min(850px, 92%);
+      margin: 65px auto;
+      text-align: center;
+    }
+
+    .orb {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 25px;
+      border-radius: 50%;
+      background: radial-gradient(
+        circle at 35% 30%,
+        #b9f5ff,
+        #4c7cff 40%,
+        #8c45f5 72%,
+        #17152e
+      );
+      box-shadow: 0 0 65px #517bff66;
+    }
+
+    h1 {
+      font-size: clamp(42px, 8vw, 70px);
+      margin: 0;
+      letter-spacing: -2px;
+    }
+
+    h1 span {
+      background: linear-gradient(90deg, #86e6ff, #a99bff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .subtitle {
+      color: #aab8d5;
+      line-height: 1.7;
+      margin: 18px auto 32px;
+      max-width: 570px;
+    }
+
+    .suggestions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 24px 0;
+    }
+
+    .suggestions button {
+      background: #111a30;
+      color: #dce8ff;
+      border: 1px solid #344464;
+      padding: 11px 15px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    .suggestions button:hover {
+      border-color: #7bdcff;
+    }
+
+    .chat {
+      text-align: left;
+      background: #0d1426cc;
+      border: 1px solid #2c3b59;
+      border-radius: 20px;
+      padding: 18px;
+      margin-top: 24px;
+    }
+
+    #messages {
+      max-height: 430px;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+    }
+
+    .message {
+      padding: 12px 14px;
+      margin: 10px 0;
+      border-radius: 12px;
+      line-height: 1.65;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .nyra {
+      background: #17223b;
+      color: #e0eaff;
+    }
+
+    .user {
+      background: #26345a;
+      margin-left: 12%;
+    }
+
+    form {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    input {
+      min-width: 0;
+      flex: 1;
+      padding: 15px;
+      border-radius: 12px;
+      background: #080d1b;
+      border: 1px solid #344464;
+      color: white;
+      font-size: 15px;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #8ce6ff;
+    }
+
+    form button {
+      padding: 0 20px;
+      border: 0;
+      border-radius: 12px;
+      color: #08101e;
+      background: #8ce6ff;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    form button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .note {
+      color: #8494b4;
+      font-size: 12px;
+      margin-top: 18px;
+    }
+
+    footer {
+      text-align: center;
+      color: #7786a5;
+      padding: 25px;
+      font-size: 13px;
+    }
+
+    @media(max-width: 600px) {
+      header {
+        padding: 18px 5%;
+      }
+
+      main {
+        margin: 45px auto;
+      }
+
+      .chat {
+        padding: 13px;
+      }
+
+      form {
+        gap: 7px;
+      }
+
+      input {
+        padding: 12px;
+        font-size: 14px;
+      }
+
+      form button {
+        padding: 0 15px;
+      }
+
+      #messages {
+        max-height: 400px;
+      }
+    }
+
+    @media(prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <a href="/" aria-label="AstropicAI home">
+      <img
+        class="brand-logo-img"
+        src="../astropicai-approved-wordmark.png"
+        alt="AstropicAI"
+      >
+    </a>
+  </header>
+
+  <main>
+
+    <div class="orb" aria-hidden="true"></div>
+
+    <h1>Meet <span>Nyra.</span></h1>
+
+    <p class="subtitle">
+      Your AI partner for thinking bigger, planning smarter,
+      and moving from ideas to action.
+    </p>
+
+    <div class="suggestions">
+      <button type="button" data-prompt="Help me plan a new project">
+        Plan a project
+      </button>
+
+      <button type="button" data-prompt="Help me research a business idea">
+        Explore an idea
+      </button>
+
+      <button type="button" data-prompt="Create a step-by-step action plan for my goal">
+        Build an action plan
+      </button>
+    </div>
+
+    <section class="chat" aria-label="Nyra chat">
+
+      <div id="messages" aria-live="polite">
+        <div class="message nyra">
+          <strong>NYRA</strong><br>
+          Hello! I'm Nyra, your AI companion from AstropicAI.
+          Tell me what you'd like to accomplish, and we'll work
+          through it together.
+        </div>
+      </div>
+
+      <form id="chatForm">
+
+        <input
+          id="prompt"
+          type="text"
+          aria-label="Your message"
+          placeholder="Tell Nyra what you want to achieve..."
+          autocomplete="off"
+          maxlength="8000"
+          required
+        >
+
+        <button type="submit">
+          Send ↗
+        </button>
+
+      </form>
+
+      <p class="note">
+        Nyra AI is connected and ready to assist you.
+      </p>
+
+    </section>
+  </main>
+
+  <footer>
+    NYRA — Powered by AstropicAI
+  </footer>
+
+  <script>
+    const messagesEl = document.getElementById('messages');
+    const input = document.getElementById('prompt');
+    const chatForm = document.getElementById('chatForm');
+
+    const sendButton = chatForm.querySelector(
+      'button[type="submit"]'
+    );
+
+    // SESSION CONVERSATION MEMORY
+    const STORAGE_KEY = 'nyra_session_history_v1';
+    const MAX_HISTORY = 30;
+
+    let conversationHistory = [];
+
+    try {
+      const saved = JSON.parse(
+        sessionStorage.getItem(STORAGE_KEY) || '[]'
+      );
+
+      if (Array.isArray(saved)) {
+        conversationHistory = saved
+          .filter(item =>
+            item &&
+            ['user', 'assistant'].includes(item.role) &&
+            typeof item.content === 'string'
+          )
+          .slice(-MAX_HISTORY);
+      }
+
+    } catch (error) {
+      conversationHistory = [];
+    }
+
+    // SAVE SESSION HISTORY
+    function saveHistory() {
+      try {
+        sessionStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify(
+            conversationHistory.slice(-MAX_HISTORY)
+          )
+        );
+
+      } catch (error) {
+        console.warn('Nyra session history could not be saved.');
+      }
+    }
+
+    // DISPLAY MESSAGES
+    function addMessage(text, kind) {
+      const el = document.createElement('div');
+
+      el.className = 'message ' + kind;
+      el.textContent = text;
+
+      messagesEl.appendChild(el);
+
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+
+      return el;
+    }
+
+    // RESTORE PREVIOUS CONVERSATION
+    function renderHistory() {
+      messagesEl.replaceChildren();
+
+      const welcome = document.createElement('div');
+
+      welcome.className = 'message nyra';
+
+      welcome.textContent =
+        "NYRA\nHello! I'm Nyra, your AI companion from AstropicAI. Tell me what you'd like to accomplish, and we'll work through it together.";
+
+      messagesEl.appendChild(welcome);
+
+      conversationHistory.forEach(item => {
+        addMessage(
+          (item.role === 'user' ? 'You: ' : 'Nyra: ')
+          + item.content,
+          item.role === 'user' ? 'user' : 'nyra'
+        );
+      });
+    }
+
+    renderHistory();
+
+    // SUGGESTED PROMPTS
+    document.querySelectorAll('[data-prompt]').forEach(button => {
+
+      button.addEventListener('click', () => {
+
+        input.value = button.dataset.prompt;
+
+        input.focus();
+
+      });
+
     });
 
-    history = history.slice(-MAX_HISTORY);
-    saveHistory();
+    // MAIN CHAT FUNCTION
+    chatForm.addEventListener('submit', async event => {
 
-    addMessage('Nyra: ' + data.reply, 'nyra');
+      event.preventDefault();
 
-  } catch (error) {
-    thinking.remove();
+      const task = input.value.trim();
 
-    // Remove the unanswered user message from saved context.
-    history.pop();
-    saveHistory();
+      if (!task || sendButton.disabled) {
+        return;
+      }
 
-    addMessage(
-      'Sorry, I could not connect. ' + error.message,
-      'nyra'
-    );
-  } finally {
-    sendButton.disabled = false;
-    input.focus();
-  }
-});
-</script>
+      if (task.length > 8000) {
+
+        addMessage(
+          'Please keep your message under 8,000 characters.',
+          'nyra'
+        );
+
+        return;
+      }
+
+      // Keep the previous history for rollback if request fails.
+      const previousHistory = [...conversationHistory];
+
+      // Save new user message.
+      conversationHistory.push({
+        role: 'user',
+        content: task
+      });
+
+      conversationHistory =
+        conversationHistory.slice(-MAX_HISTORY);
+
+      saveHistory();
+
+      addMessage('You: ' + task, 'user');
+
+      input.value = '';
+
+      sendButton.disabled = true;
+
+      // THINKING INDICATOR
+      const thinking = document.createElement('div');
+
+      thinking.className = 'message nyra';
+
+      thinking.textContent = 'Nyra is thinking...';
+
+      messagesEl.appendChild(thinking);
+
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+
+      try {
+
+        // CONNECT TO NETLIFY FUNCTION THROUGH NYRA ROUTE
+        const response = await fetch('/nyra/api/chat', {
+
+          method: 'POST',
+
+          headers: {
+            'Content-Type': 'application/json'
+          },
+
+          body: JSON.stringify({
+
+            message: task,
+
+            history: previousHistory.slice(-MAX_HISTORY)
+
+          })
+
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+
+          throw new Error(
+            data.error || 'Request failed'
+          );
+
+        }
+
+        if (
+          typeof data.reply !== 'string' ||
+          !data.reply.trim()
+        ) {
+
+          throw new Error(
+            'Nyra returned an empty response.'
+          );
+
+        }
+
+        thinking.remove();
+
+        // SAVE NYRA RESPONSE
+        conversationHistory.push({
+
+          role: 'assistant',
+
+          content: data.reply
+
+        });
+
+        conversationHistory =
+          conversationHistory.slice(-MAX_HISTORY);
+
+        saveHistory();
+
+        addMessage(
+          'Nyra: ' + data.reply,
+          'nyra'
+        );
+
+      } catch (error) {
+
+        thinking.remove();
+
+        // Restore previous successful conversation.
+        conversationHistory = previousHistory;
+
+        saveHistory();
+
+        addMessage(
+          'Sorry, I could not connect. ' + error.message,
+          'nyra'
+        );
+
+      } finally {
+
+        sendButton.disabled = false;
+
+        input.focus();
+
+      }
+
+    });
+
+  </script>
+
 </body>
 </html>
