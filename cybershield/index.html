@@ -1,28 +1,30 @@
+
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#10131b">
-  <meta name="description" content="Nyra AI CyberShield evidence-based security assessment dashboard.">
+  <meta name="description" content="Nyra AI CyberShield live passive HTTPS security assessment.">
   <title>Nyra AI | CyberShield</title>
+
   <style>
     :root {
       color-scheme: dark;
       --bg: #0b0f17;
       --panel: #121a27;
-      --panel2: #172233;
       --line: #26364b;
       --text: #edf3fb;
       --muted: #9aaabe;
       --accent: #75d6c4;
-      --blue: #81b7ff;
       --red: #ff7777;
       --amber: #ffc56b;
       --green: #79d9a7;
       --shadow: 0 18px 50px rgba(0,0,0,.22);
     }
+
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       min-height: 100vh;
@@ -30,124 +32,453 @@
       color: var(--text);
       font: 15px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
-    button, input, textarea { font: inherit; }
+
+    button, input { font: inherit; }
+
     .topbar {
-      min-height: 68px; display:flex; align-items:center; justify-content:space-between;
-      gap:16px; padding:14px clamp(18px,4vw,52px); border-bottom:1px solid var(--line);
-      background:rgba(11,15,23,.78); backdrop-filter: blur(14px);
+      min-height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px clamp(18px,4vw,52px);
+      border-bottom: 1px solid var(--line);
+      background: rgba(11,15,23,.78);
+      backdrop-filter: blur(14px);
     }
-    .brand { display:flex; align-items:center; gap:12px; font-weight:750; letter-spacing:.02em; }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 750;
+      letter-spacing: .02em;
+    }
+
     .mark {
-      width:38px; height:38px; border-radius:12px; display:grid; place-items:center;
-      background:linear-gradient(135deg,#75d6c4,#6ca7ff); color:#07131b; font-weight:900;
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg,#75d6c4,#6ca7ff);
+      color: #07131b;
+      font-weight: 900;
     }
-    .brand small { display:block; color:var(--muted); font-size:11px; font-weight:600; letter-spacing:.13em; }
-    .status { color:var(--accent); font-size:12px; border:1px solid #28594f; padding:6px 10px; border-radius:99px; }
-    main { width:min(1120px, calc(100% - 36px)); margin:38px auto 64px; }
-    .eyebrow { color:var(--accent); font-size:11px; font-weight:800; letter-spacing:.18em; text-transform:uppercase; }
-    h1 { font-size:clamp(30px,5vw,48px); line-height:1.08; margin:10px 0 12px; letter-spacing:-.04em; }
-    .intro { max-width:720px; color:var(--muted); margin:0 0 28px; }
+
+    .brand small {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .13em;
+    }
+
+    .status {
+      color: var(--accent);
+      font-size: 12px;
+      border: 1px solid #28594f;
+      padding: 6px 10px;
+      border-radius: 99px;
+    }
+
+    main {
+      width: min(1120px, calc(100% - 36px));
+      margin: 38px auto 64px;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      font-size: clamp(30px,5vw,48px);
+      line-height: 1.08;
+      margin: 10px 0 12px;
+      letter-spacing: -.04em;
+    }
+
+    .intro {
+      max-width: 720px;
+      color: var(--muted);
+      margin: 0 0 28px;
+    }
+
     .panel {
-      background:linear-gradient(145deg,rgba(23,34,51,.96),rgba(16,24,36,.96));
-      border:1px solid var(--line); border-radius:18px; padding:22px; box-shadow:var(--shadow);
+      background: linear-gradient(145deg,rgba(23,34,51,.96),rgba(16,24,36,.96));
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: var(--shadow);
     }
-    .input-grid { display:grid; grid-template-columns:1fr auto; gap:12px; align-items:end; }
-    label { display:block; color:#c7d3e2; font-size:12px; font-weight:700; margin-bottom:7px; }
-    textarea {
-      display:block; width:100%; min-height:150px; resize:vertical; padding:14px;
-      border-radius:12px; border:1px solid #31445d; background:#0c1420; color:var(--text);
-      outline:none; font:13px/1.55 ui-monospace, SFMono-Regular, Menlo, monospace;
+
+    label {
+      display: block;
+      color: #c7d3e2;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 7px;
     }
-    textarea:focus, input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(117,214,196,.12); }
-    .target { width:100%; padding:12px 13px; border-radius:10px; border:1px solid #31445d; background:#0c1420; color:var(--text); }
-    .actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
+
+    .target {
+      width: 100%;
+      padding: 13px;
+      border-radius: 10px;
+      border: 1px solid #31445d;
+      background: #0c1420;
+      color: var(--text);
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(117,214,196,.12);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
     button {
-      border:1px solid transparent; border-radius:10px; padding:11px 16px; cursor:pointer;
-      font-weight:750; transition:transform .15s ease, opacity .15s ease;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 12px 17px;
+      cursor: pointer;
+      font-weight: 750;
+      transition: transform .15s ease, opacity .15s ease;
     }
-    button:hover { transform:translateY(-1px); }
-    button:disabled { opacity:.45; cursor:not-allowed; transform:none; }
-    .primary { background:var(--accent); color:#071a1a; }
-    .secondary { background:#1b2b40; color:var(--text); border-color:#344b66; }
-    .quiet { background:transparent; color:#c6d5e8; border-color:#344b66; }
-    .hint { color:var(--muted); font-size:12px; margin:12px 0 0; }
-    .message { margin-top:14px; color:var(--amber); font-size:13px; min-height:20px; }
-    .results { margin-top:24px; display:none; }
-    .result-head { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:16px; }
-    h2 { margin:0; font-size:22px; letter-spacing:-.02em; }
-    .sub { color:var(--muted); font-size:13px; margin-top:3px; overflow-wrap:anywhere; }
-    .score-wrap { display:flex; align-items:center; gap:16px; padding:18px; border:1px solid var(--line); border-radius:16px; background:rgba(9,16,26,.55); }
+
+    button:hover { transform: translateY(-1px); }
+
+    button:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .primary {
+      background: var(--accent);
+      color: #071a1a;
+    }
+
+    .secondary {
+      background: #1b2b40;
+      color: var(--text);
+      border-color: #344b66;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 12px;
+      margin: 12px 0 0;
+    }
+
+    .message {
+      margin-top: 14px;
+      color: var(--amber);
+      font-size: 13px;
+      min-height: 20px;
+      overflow-wrap: anywhere;
+    }
+
+    .results {
+      margin-top: 24px;
+      display: none;
+    }
+
+    .result-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: -.02em;
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 3px;
+      overflow-wrap: anywhere;
+    }
+
+    .score-wrap {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(9,16,26,.55);
+    }
+
     .score {
-      width:92px; height:92px; border-radius:50%; display:grid; place-items:center; flex:none;
-      background:conic-gradient(var(--accent) var(--score-angle,0deg), #26364b 0);
-      position:relative;
+      width: 92px;
+      height: 92px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      flex: none;
+      background: conic-gradient(var(--accent) var(--score-angle,0deg), #26364b 0);
+      position: relative;
     }
-    .score::before { content:""; position:absolute; inset:7px; border-radius:50%; background:#101a28; }
-    .score strong { position:relative; font-size:27px; }
-    .score-copy small { color:var(--muted); display:block; }
-    .risk { display:inline-block; margin-top:6px; border:1px solid #426b62; color:var(--accent); padding:4px 9px; border-radius:99px; font-size:12px; font-weight:800; }
-    .metrics { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin:14px 0 20px; }
-    .metric { background:var(--panel); border:1px solid var(--line); border-radius:13px; padding:14px; }
-    .metric strong { display:block; font-size:25px; }
-    .metric span { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.08em; }
-    .metric.critical strong { color:var(--red); }
-    .metric.high strong { color:#ff9b78; }
-    .metric.medium strong { color:var(--amber); }
-    .metric.low strong { color:var(--green); }
-    .section-title { margin:22px 0 10px; font-size:16px; }
-    .findings { display:grid; gap:10px; }
-    .finding { background:var(--panel); border:1px solid var(--line); border-radius:13px; padding:16px; }
-    .finding-top { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; }
-    .finding h3 { margin:0; font-size:15px; }
-    .finding p { color:var(--muted); margin:8px 0 0; font-size:13px; }
-    .severity { flex:none; font-size:10px; font-weight:850; text-transform:uppercase; letter-spacing:.08em; padding:4px 8px; border-radius:99px; background:#26364b; }
-    .severity.critical,.severity.high { color:#ff9b91; background:#482b32; }
-    .severity.medium { color:#ffd18b; background:#473923; }
-    .severity.low { color:#9ce0bb; background:#1e4037; }
-    .severity.info { color:#a9caff; background:#243c59; }
-    .recommendations { color:#c8d7e8; margin:0; padding-left:20px; }
-    .limitations { color:var(--muted); font-size:12px; margin:8px 0 0; padding-left:18px; }
-    .empty { color:var(--muted); padding:18px; text-align:center; border:1px dashed #344b66; border-radius:12px; }
-    footer { color:#718198; text-align:center; font-size:11px; margin-top:34px; }
+
+    .score::before {
+      content: "";
+      position: absolute;
+      inset: 7px;
+      border-radius: 50%;
+      background: #101a28;
+    }
+
+    .score strong {
+      position: relative;
+      font-size: 27px;
+    }
+
+    .score-copy small {
+      color: var(--muted);
+      display: block;
+    }
+
+    .risk {
+      display: inline-block;
+      margin-top: 6px;
+      border: 1px solid #426b62;
+      color: var(--accent);
+      padding: 4px 9px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(5,1fr);
+      gap: 10px;
+      margin: 14px 0 20px;
+    }
+
+    .metric {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      padding: 14px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 25px;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .metric.critical strong { color: var(--red); }
+    .metric.high strong { color: #ff9b78; }
+    .metric.medium strong { color: var(--amber); }
+    .metric.low strong { color: var(--green); }
+
+    .section-title {
+      margin: 22px 0 10px;
+      font-size: 16px;
+    }
+
+    .findings {
+      display: grid;
+      gap: 10px;
+    }
+
+    .finding {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      padding: 16px;
+    }
+
+    .finding-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .finding h3 {
+      margin: 0;
+      font-size: 15px;
+    }
+
+    .finding p {
+      color: var(--muted);
+      margin: 8px 0 0;
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
+
+    .severity {
+      flex: none;
+      font-size: 10px;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      padding: 4px 8px;
+      border-radius: 99px;
+      background: #26364b;
+    }
+
+    .severity.critical, .severity.high {
+      color: #ff9b91;
+      background: #482b32;
+    }
+
+    .severity.medium {
+      color: #ffd18b;
+      background: #473923;
+    }
+
+    .severity.low {
+      color: #9ce0bb;
+      background: #1e4037;
+    }
+
+    .severity.info {
+      color: #a9caff;
+      background: #243c59;
+    }
+
+    .recommendations {
+      color: #c8d7e8;
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .limitations {
+      color: var(--muted);
+      font-size: 12px;
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 10px;
+    }
+
+    .detail {
+      background: #0c1420;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 13px;
+      min-width: 0;
+    }
+
+    .detail strong {
+      display: block;
+      font-size: 12px;
+      color: var(--accent);
+      margin-bottom: 5px;
+    }
+
+    .detail span {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      overflow-wrap: anywhere;
+    }
+
+    .empty {
+      color: var(--muted);
+      padding: 18px;
+      text-align: center;
+      border: 1px dashed #344b66;
+      border-radius: 12px;
+    }
+
+    footer {
+      color: #718198;
+      text-align: center;
+      font-size: 11px;
+      margin-top: 34px;
+    }
+
     @media (max-width:700px) {
-      main { margin-top:26px; }
-      .input-grid { grid-template-columns:1fr; }
-      .metrics { grid-template-columns:repeat(2,1fr); }
-      .metric:last-child { grid-column:span 2; }
-      .score-wrap { align-items:center; }
-      .result-head { flex-direction:column; }
-      .topbar { padding-inline:18px; }
+      main { margin-top: 26px; }
+      .metrics { grid-template-columns: repeat(2,1fr); }
+      .metric:last-child { grid-column: span 2; }
+      .score-wrap { align-items: center; }
+      .result-head { flex-direction: column; }
+      .topbar { padding-inline: 18px; }
+      .details-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
+
 <body>
   <header class="topbar">
-    <div class="brand"><div class="mark">N</div><div>NYRA AI<small>ASTROPICAI · CYBERSHIELD</small></div></div>
-    <div class="status">Evidence analysis mode</div>
+    <div class="brand">
+      <div class="mark">N</div>
+      <div>
+        NYRA AI
+        <small>ASTROPICAI · CYBERSHIELD</small>
+      </div>
+    </div>
+    <div class="status">Live passive assessment</div>
   </header>
 
   <main>
     <div class="eyebrow">AI-assisted security insights</div>
     <h1>CyberShield</h1>
-    <p class="intro">Review supplied website-security evidence, prioritise findings and generate a clear report with Nyra's explanations and recommended actions.</p>
 
-    <section class="panel" aria-labelledby="evidence-heading">
-      <h2 id="evidence-heading">Security evidence</h2>
-      <p class="hint">Load the repository's sample evidence or paste/upload a JSON evidence file. This page analyses supplied evidence only; it does not scan a live website.</p>
-      <div style="margin-top:18px">
+    <p class="intro">
+      Assess public website HTTPS headers and TLS certificate evidence.
+      Generate a preliminary security report with Nyra's explanations
+      and recommended actions.
+    </p>
+
+    <section class="panel" aria-labelledby="assessment-heading">
+      <h2 id="assessment-heading">Live website assessment</h2>
+
+      <p class="hint">
+        Enter a hostname you own or are explicitly authorised to assess.
+        This assessment checks the public HTTPS homepage only.
+      </p>
+
+      <div style="margin-top:20px">
         <label for="target">Target hostname</label>
-        <input class="target" id="target" placeholder="Enter website hostname" autocomplete="off" spellcheck="false">
+        <input
+          class="target"
+          id="target"
+          type="text"
+          placeholder="example.com"
+          autocomplete="url"
+          spellcheck="false"
+          maxlength="253"
+        >
       </div>
-      <div style="margin-top:16px">
-        <label for="evidence">Evidence JSON</label>
-        <textarea id="evidence" spellcheck="false" aria-label="Security evidence JSON" placeholder='{"target":"example.com","headers":{},"tls":{"checked":true,"valid":true,"daysUntilExpiry":14}}'></textarea>
-      </div>
+
       <div class="actions">
-        <button class="secondary" id="sampleBtn" type="button">Load sample evidence</button>
-        <button class="quiet" id="fileBtn" type="button">Upload JSON file</button>
-        <input id="fileInput" type="file" accept=".json,application/json" hidden>
-        <button class="primary" id="analyseBtn" type="button">Analyse with Nyra</button>
+        <button class="primary" id="analyseBtn" type="button">
+          Run assessment with Nyra
+        </button>
       </div>
+
       <div class="message" id="message" role="status" aria-live="polite"></div>
     </section>
 
@@ -158,44 +489,113 @@
           <h2>Security overview</h2>
           <div class="sub" id="reportTarget"></div>
         </div>
-        <button class="secondary" id="downloadBtn" type="button">Download report</button>
+
+        <button class="secondary" id="downloadBtn" type="button">
+          Download report
+        </button>
       </div>
 
       <div class="score-wrap">
-        <div class="score" id="scoreRing"><strong id="scoreValue">—</strong></div>
+        <div class="score" id="scoreRing">
+          <strong id="scoreValue">—</strong>
+        </div>
+
         <div class="score-copy">
           <strong>Security score</strong>
           <small>Preliminary evidence-based score out of 100</small>
-          <div class="risk" id="riskLevel">Awaiting analysis</div>
+          <div class="risk" id="riskLevel">Awaiting assessment</div>
         </div>
       </div>
 
-      <div class="metrics" id="metrics">
-        <div class="metric critical"><strong id="criticalCount">0</strong><span>Critical</span></div>
-        <div class="metric high"><strong id="highCount">0</strong><span>High</span></div>
-        <div class="metric medium"><strong id="mediumCount">0</strong><span>Medium</span></div>
-        <div class="metric low"><strong id="lowCount">0</strong><span>Low</span></div>
-        <div class="metric"><strong id="totalCount">0</strong><span>Total findings</span></div>
+      <div class="metrics">
+        <div class="metric critical">
+          <strong id="criticalCount">0</strong>
+          <span>Critical</span>
+        </div>
+
+        <div class="metric high">
+          <strong id="highCount">0</strong>
+          <span>High</span>
+        </div>
+
+        <div class="metric medium">
+          <strong id="mediumCount">0</strong>
+          <span>Medium</span>
+        </div>
+
+        <div class="metric low">
+          <strong id="lowCount">0</strong>
+          <span>Low</span>
+        </div>
+
+        <div class="metric">
+          <strong id="totalCount">0</strong>
+          <span>Total findings</span>
+        </div>
+      </div>
+
+      <h3 class="section-title">Collected evidence</h3>
+      <div class="panel">
+        <div class="details-grid">
+          <div class="detail">
+            <strong>HTTP status</strong>
+            <span id="httpStatus">Not available</span>
+          </div>
+
+          <div class="detail">
+            <strong>TLS certificate</strong>
+            <span id="tlsStatus">Not available</span>
+          </div>
+
+          <div class="detail">
+            <strong>TLS protocol</strong>
+            <span id="tlsProtocol">Not available</span>
+          </div>
+
+          <div class="detail">
+            <strong>Certificate expiry</strong>
+            <span id="tlsExpiry">Not available</span>
+          </div>
+
+          <div class="detail">
+            <strong>DNS addresses</strong>
+            <span id="dnsAddresses">Not available</span>
+          </div>
+
+          <div class="detail">
+            <strong>Collection method</strong>
+            <span id="collectionMethod">Not available</span>
+          </div>
+        </div>
       </div>
 
       <h3 class="section-title">Prioritised findings</h3>
       <div class="findings" id="findings"></div>
 
       <h3 class="section-title">Recommended actions</h3>
-      <div class="panel"><ol class="recommendations" id="recommendations"></ol></div>
+      <div class="panel">
+        <ol class="recommendations" id="recommendations"></ol>
+      </div>
 
       <h3 class="section-title">Assessment limitations</h3>
-      <div class="panel"><ul class="limitations" id="limitations"></ul></div>
+      <div class="panel">
+        <ul class="limitations" id="limitations"></ul>
+      </div>
+
       <p class="hint" id="generatedAt"></p>
     </section>
 
-    <footer>AstropicAI · Nyra AI CyberShield · Preliminary assessment, not a security certification</footer>
+    <footer>
+      AstropicAI · Nyra AI CyberShield · Preliminary assessment,
+      not a security certification
+    </footer>
   </main>
 
   <script type="module">
-    import { analyseWithNyra, formatNyraReport } from "./ai/nyra-analysis.js";
+    import { formatNyraReport } from "./ai/nyra-analysis.js";
 
-    const $ = (id) => document.getElementById(id);
+    const $ = id => document.getElementById(id);
+
     let latestReport = null;
 
     function setMessage(message, isError = false) {
@@ -203,152 +603,255 @@
       $("message").style.color = isError ? "#ff9b91" : "#ffc56b";
     }
 
-function syncTargetToEvidence() {
-  const target = $("target").value.trim();
-  if (!target) return;
-
-  try {
-    const raw = $("evidence").value.trim();
-    const evidence = raw ? JSON.parse(raw) : {};
-
-    if (!evidence || typeof evidence !== "object" || Array.isArray(evidence)) {
-      throw new Error("Evidence must be a JSON object.");
+    function setText(id, value) {
+      $(id).textContent =
+        value === null || value === undefined || value === ""
+          ? "Not available"
+          : String(value);
     }
-
-    evidence.target = target;
-    $("evidence").value = JSON.stringify(evidence, null, 2);
-  } catch (error) {
-    setMessage("Please correct the Evidence JSON before synchronising.", true);
-  }
-}
-
-$("target").addEventListener("input", syncTargetToEvidence);
-
-    function escapeHtml(value) {
-      return String(value ?? "").replace(/[&<>"']/g, char => ({
-        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-      })[char]);
-    } 
-async function loadSample() {
-  setMessage("Loading sample evidence…");
-
-  // Preserve the hostname already entered.
-  const existingTarget = $("target").value.trim();
-
-  try {
-    const response = await fetch(
-      "./engine/sample-evidence.json",
-      { cache: "no-store" }
-    );
-
-    if (!response.ok) {
-      throw new Error(
-        "Sample file could not be loaded. You can upload or paste JSON instead."
-      );
-    }
-
-    const evidence = await response.json();
-
-    // Use the entered hostname instead of example.com.
-    if (existingTarget) {
-      evidence.target = existingTarget;
-    }
-
-    $("evidence").value = JSON.stringify(evidence, null, 2);
-    $("target").value = existingTarget;
-
-    setMessage(
-      existingTarget
-        ? `Sample evidence loaded for ${existingTarget}. Note: this is demonstration evidence, not a live scan.`
-        : "Sample evidence loaded. Enter an authorised target hostname before analysis."
-    );
-
-  } catch (error) {
-    setMessage(error.message, true);
-  }
-}
-
 
     function renderReport(report) {
       latestReport = report;
-      $("results").style.display = "block";
-      $("reportTarget").textContent = report.target || "Target not specified";
-      $("scoreValue").textContent = report.score;
-      $("scoreRing").style.setProperty("--score-angle", `${Math.max(0, Math.min(100, report.score)) * 3.6}deg`);
-      $("riskLevel").textContent = `${report.riskLevel} risk`;
-      $("criticalCount").textContent = report.counts.critical;
-      $("highCount").textContent = report.counts.high;
-      $("mediumCount").textContent = report.counts.medium;
-      $("lowCount").textContent = report.counts.low + report.counts.info;
-      $("totalCount").textContent = report.totalFindings;
 
-      const findings = $("findings");
+      $("results").style.display = "block";
+
+      setText("reportTarget", report.target);
+      setText("scoreValue", report.score);
+
+      $("scoreRing").style.setProperty(
+        "--score-angle",
+        `${Math.max(0, Math.min(100, report.score)) * 3.6}deg`
+      );
+
+      setText("riskLevel", `${report.riskLevel} risk`);
+
+      const counts = report.counts || {};
+
+      setText("criticalCount", counts.critical ?? 0);
+      setText("highCount", counts.high ?? 0);
+      setText("mediumCount", counts.medium ?? 0);
+      setText("lowCount", (counts.low ?? 0) + (counts.info ?? 0));
+      setText("totalCount", report.totalFindings ?? report.findings.length);
+
+      // Display collected live evidence.
+      setText("httpStatus", report.httpStatus ?? report.http?.statusCode);
+
+      const tls = report.tls || {};
+
+      setText(
+        "tlsStatus",
+        typeof tls.authorized === "boolean"
+          ? (tls.authorized ? "Valid" : "Invalid")
+          : typeof tls.valid === "boolean"
+            ? (tls.valid ? "Valid" : "Invalid")
+            : "Not confirmed"
+      );
+
+      setText("tlsProtocol", tls.protocol);
+      setText("tlsExpiry", tls.validTo);
+
+      const addresses = report.dns?.addresses || [];
+
+      setText(
+        "dnsAddresses",
+        addresses.length ? addresses.join(", ") : "Not available"
+      );
+
+      setText("collectionMethod", report.collectionMethod);
+
+      // Display findings using safe DOM text rather than HTML interpolation.
+      const findingsContainer = $("findings");
+      findingsContainer.replaceChildren();
+
       if (!report.findings.length) {
-        findings.innerHTML = '<div class="empty">No findings were identified in the supplied evidence. This does not prove the website is secure.</div>';
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent =
+          "No findings were identified in the collected evidence. This does not prove the website is secure.";
+        findingsContainer.appendChild(empty);
       } else {
-        findings.innerHTML = report.findings.map(item => `
-          <article class="finding">
-            <div class="finding-top">
-              <h3>${escapeHtml(item.title)}</h3>
-              <span class="severity ${escapeHtml(item.severity)}">${escapeHtml(item.severity)}</span>
-            </div>
-            <p><strong>Category:</strong> ${escapeHtml(item.category)}</p>
-            <p><strong>Potential impact:</strong> ${escapeHtml(item.impact)}</p>
-            <p><strong>Recommended action:</strong> ${escapeHtml(item.action)}</p>
-          </article>
-        `).join("");
+        report.findings.forEach(item => {
+          const article = document.createElement("article");
+          article.className = "finding";
+
+          const top = document.createElement("div");
+          top.className = "finding-top";
+
+          const title = document.createElement("h3");
+          title.textContent = item.title || "Untitled finding";
+
+          const severity = document.createElement("span");
+          severity.className =
+            "severity " + String(item.severity || "info").toLowerCase();
+          severity.textContent = item.severity || "info";
+
+          top.append(title, severity);
+          article.appendChild(top);
+
+          const fields = [
+            ["Category", item.category],
+            ["Potential impact", item.impact],
+            ["Recommended action", item.action]
+          ];
+
+          fields.forEach(([label, value]) => {
+            const paragraph = document.createElement("p");
+            const strong = document.createElement("strong");
+            strong.textContent = label + ": ";
+            paragraph.append(strong, document.createTextNode(value || "Not available"));
+            article.appendChild(paragraph);
+          });
+
+          findingsContainer.appendChild(article);
+        });
       }
 
-      $("recommendations").innerHTML = report.recommendations.length
-        ? report.recommendations.map(item => `<li>${escapeHtml(item)}</li>`).join("")
-        : "<li>No additional actions generated from the supplied evidence.</li>";
-      $("limitations").innerHTML = report.limitations.map(item => `<li>${escapeHtml(item)}</li>`).join("");
-      $("generatedAt").textContent = `Generated: ${new Date(report.generatedAt).toLocaleString()}`;
-      $("results").scrollIntoView({ behavior: "smooth", block: "start" });
+      // Recommendations.
+      const recommendations = $("recommendations");
+      recommendations.replaceChildren();
+
+      const actions = report.recommendations || [];
+
+      if (actions.length) {
+        actions.forEach(action => {
+          const li = document.createElement("li");
+          li.textContent = action;
+          recommendations.appendChild(li);
+        });
+      } else {
+        const li = document.createElement("li");
+        li.textContent = "No additional actions were generated.";
+        recommendations.appendChild(li);
+      }
+
+      // Limitations.
+      const limitations = $("limitations");
+      limitations.replaceChildren();
+
+      (report.limitations || []).forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        limitations.appendChild(li);
+      });
+
+      setText(
+        "generatedAt",
+        report.generatedAt
+          ? `Generated: ${new Date(report.generatedAt).toLocaleString()}`
+          : "Generation time unavailable"
+      );
+
+      $("results").scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
     }
 
-    $("sampleBtn").addEventListener("click", loadSample);
-    $("fileBtn").addEventListener("click", () => $("fileInput").click());
+    $("analyseBtn").addEventListener("click", async () => {
+      const target = $("target").value.trim().toLowerCase().replace(/\.$/, "");
+      const button = $("analyseBtn");
 
-    $("fileInput").addEventListener("change", async event => {
-      const file = event.target.files?.[0];
-      if (!file) return;
-      try {
-        const text = await file.text();
-        const evidence = JSON.parse(text);
-        $("evidence").value = JSON.stringify(evidence, null, 2);
-        if (evidence.target) $("target").value = evidence.target;
-        setMessage(`Loaded ${file.name}. Select Analyse with Nyra to continue.`);
-      } catch {
-        setMessage("That file is not valid JSON. Please choose a valid evidence JSON file.", true);
+      if (!target) {
+        setMessage("Enter an authorised hostname.", true);
+        $("target").focus();
+        return;
       }
-      event.target.value = "";
-    });
 
-    $("analyseBtn").addEventListener("click", () => {
+      if (
+        target.length > 253 ||
+        !/^(?=.{1,253}$)([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/i.test(target)
+      ) {
+        setMessage("Enter a valid hostname, such as example.com.", true);
+        $("target").focus();
+        return;
+      }
+
+      button.disabled = true;
+      latestReport = null;
+      $("results").style.display = "none";
+
+      setMessage(`Collecting passive HTTPS evidence for ${target}…`);
+
       try {
-        const evidence = JSON.parse($("evidence").value);
-        const target = $("target").value.trim();
-        if (!target) throw new Error("Enter a target hostname.");
-        evidence.target = target;
-        const report = analyseWithNyra(evidence);
+        const response = await fetch(
+          "/.netlify/functions/cybershield-assess",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            cache: "no-store",
+            body: JSON.stringify({ target })
+          }
+        );
+
+        let data;
+
+        try {
+          data = await response.json();
+        } catch {
+          throw new Error(
+            "The assessment service returned an invalid response."
+          );
+        }
+
+        if (!response.ok) {
+          throw new Error(
+            data.error || `Assessment failed with status ${response.status}.`
+          );
+        }
+
+        const report = data.report;
+
+        if (
+          !report ||
+          report.target !== target ||
+          !Array.isArray(report.findings) ||
+          !report.counts ||
+          !Number.isFinite(report.score)
+        ) {
+          throw new Error("The assessment returned an incomplete or mismatched report.");
+        }
+
         renderReport(report);
-        setMessage("Analysis complete. Review the findings and limitations below.");
+        setMessage(`Assessment completed for ${report.target}.`);
+
       } catch (error) {
-        setMessage(error.message || "Unable to analyse this evidence.", true);
+        $("results").style.display = "none";
+
+        setMessage(
+          error.message || "Unable to complete the assessment.",
+          true
+        );
+
+      } finally {
+        button.disabled = false;
       }
     });
 
     $("downloadBtn").addEventListener("click", () => {
-      if (!latestReport) return;
-      const blob = new Blob([formatNyraReport(latestReport)], { type: "text/plain;charset=utf-8" });
+      if (!latestReport) {
+        setMessage("There is no report available to download.", true);
+        return;
+      }
+
+      const blob = new Blob(
+        [formatNyraReport(latestReport)],
+        { type: "text/plain;charset=utf-8" }
+      );
+
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
+
       link.href = url;
-      link.download = `nyra-cybershield-${(latestReport.target || "report").replace(/[^a-z0-9.-]/gi, "-")}.txt`;
+      link.download =
+        `nyra-cybershield-${(latestReport.target || "report")
+          .replace(/[^a-z0-9.-]/gi, "-")}.txt`;
+
       document.body.appendChild(link);
       link.click();
       link.remove();
+
       URL.revokeObjectURL(url);
     });
   </script>
