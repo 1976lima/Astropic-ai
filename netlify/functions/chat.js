@@ -35,7 +35,7 @@ export default async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-  model: "gpt-5-mini",
+  model: "gpt-6.1-terra",
   reasoning: { effort: "low" },
   tools: [
     { type: "web_search" }
