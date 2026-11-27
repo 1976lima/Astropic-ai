@@ -407,20 +407,7 @@ chatForm.addEventListener("submit", async event => {
       "nyra"
     );
 
-  } finally {
-    chatBusy = false;
-    sendButton.disabled = false;
-    input.disabled = false;
-    input.focus();
-  }
-});
-
-    input.value = "";
-  } catch (error) {
-    console.error("Nyra chat error:", error);
-    thinking.remove();
-    addMessage("Sorry, I could not connect. " + (error.message || "Please try again."), "nyra");
-  } finally {
+    } finally {
     chatBusy = false;
     sendButton.disabled = false;
     input.disabled = false;
@@ -430,3 +417,5 @@ chatForm.addEventListener("submit", async event => {
 </script>
 </body>
 </html>
+
+
