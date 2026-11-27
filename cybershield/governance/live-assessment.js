@@ -4,8 +4,7 @@ import tls from "node:tls";
 import { isIP } from "node:net";
 
 import {
-  validateScope,
-  checkRequestScope
+  checkPassiveRequestScope
 } from "./scope-manager.js";
 
 import { createNetworkGuard } from "./network-guard.js";
@@ -29,42 +28,6 @@ const SECURITY_HEADERS = [
 ];
 
 const networkGuard = createNetworkGuard({ isPublicIp });
-
-function serverAuthorisationScope() {
-  const allowedTargets = String(
-    process.env.CYBERSHIELD_ALLOWED_TARGETS || ""
-  )
-    .split(",")
-    .map(value =>
-      value.trim().toLowerCase().replace(/\.$/, "")
-    )
-    .filter(Boolean);
-
-  const scope = {
-    authorisationConfirmed:
-      process.env.CYBERSHIELD_AUTHORIZATION_CONFIRMED === "true",
-
-    authorisationReference:
-      process.env.CYBERSHIELD_AUTHORIZATION_REFERENCE || "",
-
-    expiresAt:
-      process.env.CYBERSHIELD_AUTHORIZATION_EXPIRES_AT || "",
-
-    allowedTargets,
-    allowedTests: REQUIRED_TESTS
-  };
-
-  const validation = validateScope(scope);
-
-  if (!validation.valid) {
-    throw new Error(
-      "Server authorisation scope is invalid: " +
-      validation.errors.join("; ")
-    );
-  }
-
-  return scope;
-}
 
 function normaliseTarget(input) {
   if (
@@ -118,27 +81,6 @@ function normaliseTarget(input) {
   return hostname;
 }
 
-function checkAuthorisedScope(host) {
-  const scope = serverAuthorisationScope();
-  const url = `https://${host}/`;
-
-  for (const testType of REQUIRED_TESTS) {
-    const decision = checkRequestScope(scope, {
-      url,
-      testType
-    });
-
-    if (!decision.allowed) {
-      throw new Error(
-        decision.reason ||
-        "Assessment is outside the authorised scope."
-      );
-    }
-  }
-
-  return scope;
-}
-
 export function validateAssessmentRequest(body) {
   const target = normaliseTarget(body?.target);
 
@@ -150,19 +92,24 @@ export function validateAssessmentRequest(body) {
     };
   }
 
-  try {
-    checkAuthorisedScope(target);
+  for (const testType of REQUIRED_TESTS) {
+    const decision = checkPassiveRequestScope({
+      url: `https://${target}/`,
+      testType
+    });
 
-    return {
-      valid: true,
-      target
-    };
-  } catch (error) {
-    return {
-      valid: false,
-      error: error.message
-    };
+    if (!decision.allowed) {
+      return {
+        valid: false,
+        error: decision.reason
+      };
+    }
   }
+
+  return {
+    valid: true,
+    target
+  };
 }
 
 function pinnedLookup(addresses) {
@@ -198,10 +145,7 @@ function requestHead(host, addresses) {
         method: "HEAD",
         path: "/",
         servername: host,
-
-        // TLS validity is inspected separately.
         rejectUnauthorized: false,
-
         timeout: TIMEOUT_MS,
         maxHeaderSize: 16 * 1024,
         lookup: pinnedLookup(addresses),
@@ -331,14 +275,25 @@ export async function collectPassiveEvidence(target) {
     throw new Error("Invalid assessment target.");
   }
 
-  const scope = checkAuthorisedScope(host);
   const url = `https://${host}/`;
 
+  for (const testType of REQUIRED_TESTS) {
+    const decision = checkPassiveRequestScope({
+      url,
+      testType
+    });
+
+    if (!decision.allowed) {
+      throw new Error(decision.reason);
+    }
+  }
+
   const destination =
-    await networkGuard.validateDestination(scope, url);
+    await networkGuard.validateDestination(null, url);
 
   if (
     !destination ||
+    destination.allowed !== true ||
     !Array.isArray(destination.addresses) ||
     destination.addresses.length === 0
   ) {
@@ -381,24 +336,17 @@ export async function collectPassiveEvidence(target) {
     target: host,
 
     collectionMethod:
-      "Authorised, DNS-validated, IP-pinned passive HTTPS HEAD and TLS inspection",
+      "DNS-validated, IP-pinned passive HTTPS HEAD and TLS inspection",
 
     collectedAt: new Date().toISOString(),
 
     dns: {
       addresses: addresses.map(item => item.address),
-      validatedAt:
-        destination.timestamp ||
-        destination.validatedAt ||
-        null
+      validatedAt: destination.validatedAt || null
     },
 
-    // The engine reads evidence.headers.
     headers: http.headers,
-
     http,
-
-    // The engine reads evidence.tls.checked and evidence.tls.valid.
     tls: certificate,
 
     limits: {
