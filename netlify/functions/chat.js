@@ -163,7 +163,25 @@ async function saveConversation(conversationId, userId, message, reply, token) {
 
   return activeId;
 }
+async function loadUserMemories(userId, token) {
+  const query = new URLSearchParams({
+    user_id: `eq.${userId}`,
+    select: "memory_key,memory_value",
+    order: "updated_at.desc",
+    limit: "50"
+  });
 
+  const rows = await supabaseRequest(
+    `user_memories?${query}`,
+    token
+  );
+
+  return (Array.isArray(rows) ? rows : [])
+    .filter(row =>
+      typeof row.memory_key === "string" &&
+      typeof row.memory_value === "string"
+    );
+}
 async function generateReply(message, history) {
   const apiKey = getEnv("OPENAI_API_KEY");
 
