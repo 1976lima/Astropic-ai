@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,545 +6,374 @@
   <meta name="theme-color" content="#080d1c">
   <meta name="description" content="Meet Nyra, the intelligent AI companion from AstropicAI.">
   <title>Nyra — AI by AstropicAI</title>
-
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: Inter, system-ui, Arial, sans-serif;
-      color: #eef5ff;
-      background: radial-gradient(
-        ellipse at top,
-        #18254b 0,
-        #0b1020 45%,
-        #060914 100%
-      );
-    }
-
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 22px 7%;
-      border-bottom: 1px solid #263451;
-    }
-
-    .brand-logo-img {
-      height: 42px;
-      width: auto;
-      max-width: 70vw;
-      object-fit: contain;
-      display: block;
-    }
-
-    main {
-      width: min(850px, 92%);
-      margin: 65px auto;
-      text-align: center;
-    }
-
-    .orb {
-      width: 100px;
-      height: 100px;
-      margin: 0 auto 25px;
-      border-radius: 50%;
-      background: radial-gradient(
-        circle at 35% 30%,
-        #b9f5ff,
-        #4c7cff 40%,
-        #8c45f5 72%,
-        #17152e
-      );
-      box-shadow: 0 0 65px #517bff66;
-    }
-
-    h1 {
-      font-size: clamp(42px, 8vw, 70px);
-      margin: 0;
-      letter-spacing: -2px;
-    }
-
-    h1 span {
-      background: linear-gradient(90deg, #86e6ff, #a99bff);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-
-    .subtitle {
-      color: #aab8d5;
-      line-height: 1.7;
-      margin: 18px auto 32px;
-      max-width: 570px;
-    }
-
-    .suggestions {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin: 24px 0;
-    }
-
-    .suggestions button {
-      background: #111a30;
-      color: #dce8ff;
-      border: 1px solid #344464;
-      padding: 11px 15px;
-      border-radius: 20px;
-      cursor: pointer;
-    }
-
-    .suggestions button:hover {
-      border-color: #7bdcff;
-    }
-
-    .chat {
-      text-align: left;
-      background: #0d1426cc;
-      border: 1px solid #2c3b59;
-      border-radius: 20px;
-      padding: 18px;
-      margin-top: 24px;
-    }
-
-    #messages {
-      max-height: 430px;
-      overflow-y: auto;
-      scroll-behavior: smooth;
-    }
-
-    .message {
-      padding: 12px 14px;
-      margin: 10px 0;
-      border-radius: 12px;
-      line-height: 1.65;
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-    }
-
-    .nyra {
-      background: #17223b;
-      color: #e0eaff;
-    }
-
-    .user {
-      background: #26345a;
-      margin-left: 12%;
-    }
-
-    form {
-      display: flex;
-      gap: 10px;
-      margin-top: 15px;
-    }
-
-    input {
-      min-width: 0;
-      flex: 1;
-      padding: 15px;
-      border-radius: 12px;
-      background: #080d1b;
-      border: 1px solid #344464;
-      color: white;
-      font-size: 15px;
-    }
-
-    input:focus {
-      outline: none;
-      border-color: #8ce6ff;
-    }
-
-    form button {
-      padding: 0 20px;
-      border: 0;
-      border-radius: 12px;
-      color: #08101e;
-      background: #8ce6ff;
-      font-weight: 800;
-      cursor: pointer;
-    }
-
-    form button:disabled {
-      opacity: 0.55;
-      cursor: not-allowed;
-    }
-
-    .note {
-      color: #8494b4;
-      font-size: 12px;
-      margin-top: 18px;
-    }
-
-    footer {
-      text-align: center;
-      color: #7786a5;
-      padding: 25px;
-      font-size: 13px;
-    }
-
-    @media(max-width: 600px) {
-      header {
-        padding: 18px 5%;
-      }
-
-      main {
-        margin: 45px auto;
-      }
-
-      .chat {
-        padding: 13px;
-      }
-
-      form {
-        gap: 7px;
-      }
-
-      input {
-        padding: 12px;
-        font-size: 14px;
-      }
-
-      form button {
-        padding: 0 15px;
-      }
-
-      #messages {
-        max-height: 400px;
-      }
-    }
-
-    @media(prefers-reduced-motion: reduce) {
-      *,
-      *::before,
-      *::after {
-        scroll-behavior: auto !important;
-      }
-    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; font-family: Inter, system-ui, Arial, sans-serif; color: #eef5ff; background: radial-gradient(ellipse at top, #18254b 0, #0b1020 45%, #060914 100%); }
+    header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 7%; border-bottom: 1px solid #263451; }
+    .brand-logo-img { height: 42px; width: auto; max-width: 55vw; object-fit: contain; display: block; }
+    .account-area { text-align: right; }
+    .account-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .account-actions button, .auth-panel button { border: 1px solid #52658b; border-radius: 10px; padding: 9px 13px; background: #111a30; color: #eaf3ff; cursor: pointer; font-weight: 600; }
+    .account-actions button.primary, .auth-panel button.primary { background: #8ce6ff; color: #08101e; border-color: #8ce6ff; }
+    #accountStatus { color: #9fb4d8; font-size: 12px; margin-top: 6px; }
+    .auth-panel { display: none; width: min(420px, 92%); margin: 18px auto 0; padding: 18px; border: 1px solid #344464; border-radius: 16px; background: #101a30; text-align: left; }
+    .auth-panel.open { display: block; }
+    .auth-panel h2 { margin: 0 0 12px; font-size: 20px; }
+    .auth-panel input { width: 100%; margin: 7px 0; padding: 12px; border-radius: 9px; border: 1px solid #344464; background: #080d1b; color: white; font-size: 15px; }
+    .auth-buttons { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    #authMessage { min-height: 20px; color: #9fdcff; font-size: 13px; line-height: 1.5; }
+    main { width: min(850px, 92%); margin: 55px auto; text-align: center; }
+    .orb { width: 100px; height: 100px; margin: 0 auto 25px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #b9f5ff, #4c7cff 40%, #8c45f5 72%, #17152e); box-shadow: 0 0 65px #517bff66; }
+    h1 { font-size: clamp(42px, 8vw, 70px); margin: 0; letter-spacing: -2px; }
+    h1 span { background: linear-gradient(90deg, #86e6ff, #a99bff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .subtitle { color: #aab8d5; line-height: 1.7; margin: 18px auto 32px; max-width: 570px; }
+    .suggestions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 24px 0; }
+    .suggestions button { background: #111a30; color: #dce8ff; border: 1px solid #344464; padding: 11px 15px; border-radius: 20px; cursor: pointer; }
+    .suggestions button:hover { border-color: #7bdcff; }
+    .chat { text-align: left; background: #0d1426cc; border: 1px solid #2c3b59; border-radius: 20px; padding: 18px; margin-top: 24px; }
+    #messages { max-height: 430px; overflow-y: auto; scroll-behavior: smooth; }
+    .message { padding: 12px 14px; margin: 10px 0; border-radius: 12px; line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .nyra { background: #17223b; color: #e0eaff; }
+    .user { background: #26345a; margin-left: 12%; }
+    form.chat-form { display: flex; gap: 10px; margin-top: 15px; }
+    .chat-form input { min-width: 0; flex: 1; padding: 15px; border-radius: 12px; background: #080d1b; border: 1px solid #344464; color: white; font-size: 15px; }
+    .chat-form input:focus, .auth-panel input:focus { outline: none; border-color: #8ce6ff; }
+    .chat-form button { padding: 0 20px; border: 0; border-radius: 12px; color: #08101e; background: #8ce6ff; font-weight: 800; cursor: pointer; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    .note { color: #8494b4; font-size: 12px; margin-top: 18px; }
+    footer { text-align: center; color: #7786a5; padding: 25px; font-size: 13px; }
+    @media(max-width: 600px) { header { padding: 15px 4%; } main { margin: 40px auto; } .chat { padding: 13px; } .chat-form { gap: 7px; } .chat-form input { padding: 12px; font-size: 14px; } .chat-form button { padding: 0 15px; } #messages { max-height: 400px; } .account-actions { gap: 5px; } .account-actions button { padding: 8px 9px; font-size: 12px; } }
+    @media(prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; } }
   </style>
 </head>
-
 <body>
-
-  <header>
-    <a href="/" aria-label="AstropicAI home">
-      <img
-        class="brand-logo-img"
-        src="../astropicai-approved-wordmark.png"
-        alt="AstropicAI"
-      >
-    </a>
-  </header>
-
-  <main>
-
-    <div class="orb" aria-hidden="true"></div>
-
-    <h1>Meet <span>Nyra.</span></h1>
-
-    <p class="subtitle">
-      Your AI partner for thinking bigger, planning smarter,
-      and moving from ideas to action.
-    </p>
-
-    <div class="suggestions">
-      <button type="button" data-prompt="Help me plan a new project">
-        Plan a project
-      </button>
-
-      <button type="button" data-prompt="Help me research a business idea">
-        Explore an idea
-      </button>
-
-      <button type="button" data-prompt="Create a step-by-step action plan for my goal">
-        Build an action plan
-      </button>
+<header>
+  <a href="/" aria-label="AstropicAI home"><img class="brand-logo-img" src="../astropicai-approved-wordmark.png" alt="AstropicAI"></a>
+  <div class="account-area">
+    <div class="account-actions">
+      <button type="button" id="signInButton">Sign in</button>
+      <button type="button" class="primary" id="signUpButton">Create account</button>
+      <button type="button" id="signOutButton" hidden>Sign out</button>
     </div>
+    <div id="accountStatus">Starting guest session…</div>
+  </div>
+</header>
 
-    <section class="chat" aria-label="Nyra chat">
+<section class="auth-panel" id="authPanel" aria-label="Account access">
+  <h2 id="authTitle">Sign in to Nyra</h2>
+  <form id="authForm">
+    <input id="authEmail" type="email" placeholder="Email address" autocomplete="email" required>
+    <input id="authPassword" type="password" placeholder="Password (minimum 8 characters)" autocomplete="current-password" minlength="8" required>
+    <div class="auth-buttons"><button type="submit" class="primary" id="authSubmit">Sign in</button><button type="button" id="closeAuthButton">Cancel</button></div>
+  </form>
+  <p id="authMessage" aria-live="polite"></p>
+</section>
 
-      <div id="messages" aria-live="polite">
-        <div class="message nyra">
-          <strong>NYRA</strong><br>
-          Hello! I'm Nyra, your AI companion from AstropicAI.
-          Tell me what you'd like to accomplish, and we'll work
-          through it together.
-        </div>
-      </div>
+<main>
+  <div class="orb" aria-hidden="true"></div>
+  <h1>Meet <span>Nyra.</span></h1>
+  <p class="subtitle">Your AI partner for thinking bigger, planning smarter, and moving from ideas to action.</p>
+  <div class="suggestions">
+    <button type="button" data-prompt="Help me plan a new project">Plan a project</button>
+    <button type="button" data-prompt="Help me research a business idea">Explore an idea</button>
+    <button type="button" data-prompt="Create a step-by-step action plan for my goal">Build an action plan</button>
+  </div>
+  <section class="chat" aria-label="Nyra chat">
+    <div id="messages" aria-live="polite"><div class="message nyra">NYRA<br>Hello! I'm Nyra, your AI companion from AstropicAI. Tell me what you'd like to accomplish, and we'll work through it together.</div></div>
+    <form id="chatForm" class="chat-form">
+      <input id="prompt" type="text" aria-label="Your message" placeholder="Tell Nyra what you want to achieve…" autocomplete="off" maxlength="8000" required>
+      <button type="submit">Send ↗</button>
+    </form>
+    <p class="note">Nyra is ready to assist you. Chat as a guest or sign in to keep your conversations with your account.</p>
+  </section>
+</main>
+<footer>NYRA — Powered by AstropicAI</footer>
 
-      <form id="chatForm">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+"use strict";
 
-        <input
-          id="prompt"
-          type="text"
-          aria-label="Your message"
-          placeholder="Tell Nyra what you want to achieve..."
-          autocomplete="off"
-          maxlength="8000"
-          required
-        >
+// Replace only these two placeholders with the Supabase API URL and publishable key.
+const SUPABASE_URL = "https://wjafjihmsyfjqtjpuxxa.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_ykin90o_97JV8NQu9-jnMg_9c-sXCwb";
 
-        <button type="submit">
-          Send ↗
-        </button>
+const messagesEl = document.getElementById("messages");
+const input = document.getElementById("prompt");
+const chatForm = document.getElementById("chatForm");
+const sendButton = chatForm.querySelector('button[type="submit"]');
+const authPanel = document.getElementById("authPanel");
+const authForm = document.getElementById("authForm");
+const authEmail = document.getElementById("authEmail");
+const authPassword = document.getElementById("authPassword");
+const authTitle = document.getElementById("authTitle");
+const authSubmit = document.getElementById("authSubmit");
+const authMessage = document.getElementById("authMessage");
+const accountStatus = document.getElementById("accountStatus");
+const signInButton = document.getElementById("signInButton");
+const signUpButton = document.getElementById("signUpButton");
+const signOutButton = document.getElementById("signOutButton");
+const closeAuthButton = document.getElementById("closeAuthButton");
 
-      </form>
+const MAX_HISTORY = 30;
+const CHAT_ENDPOINT = "/nyra/api/chat";
+let supabaseClient = null;
+let currentUser = null;
+let currentConversationId = null;
+let authMode = "signin";
+let authReady = false;
+let chatBusy = false;
 
-      <p class="note">
-        Nyra AI is connected and ready to assist you.
-      </p>
+function showWelcome() {
+  messagesEl.replaceChildren();
+  const welcome = document.createElement("div");
+  welcome.className = "message nyra";
+  welcome.textContent = "NYRA\nHello! I'm Nyra, your AI companion from AstropicAI. Tell me what you'd like to accomplish, and we'll work through it together.";
+  messagesEl.appendChild(welcome);
+}
 
-    </section>
-  </main>
+function addMessage(text, kind) {
+  const el = document.createElement("div");
+  el.className = "message " + kind;
+  el.textContent = text;
+  messagesEl.appendChild(el);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+  return el;
+}
 
-  <footer>
-    NYRA — Powered by AstropicAI
-  </footer>
+function renderHistory(history) {
+  showWelcome();
+  (Array.isArray(history) ? history : []).forEach(item => {
+    if (!item || !["user", "assistant"].includes(item.role) || typeof item.content !== "string") return;
+    addMessage((item.role === "user" ? "You: " : "Nyra: ") + item.content, item.role === "user" ? "user" : "nyra");
+  });
+}
 
-  <script>
-    const messagesEl = document.getElementById('messages');
-    const input = document.getElementById('prompt');
-    const chatForm = document.getElementById('chatForm');
+function conversationStorageKey(userId) {
+  return "nyra_active_conversation_v1_" + userId;
+}
 
-    const sendButton = chatForm.querySelector(
-      'button[type="submit"]'
-    );
+function updateAccountUI(user) {
+  currentUser = user || null;
+  const guest = Boolean(user?.is_anonymous);
+  if (user && !guest) {
+    accountStatus.textContent = "Signed in";
+    signInButton.hidden = true;
+    signUpButton.hidden = true;
+    signOutButton.hidden = false;
+  } else if (user && guest) {
+    accountStatus.textContent = "Using Nyra as guest";
+    signInButton.hidden = false;
+    signUpButton.hidden = false;
+    signOutButton.hidden = true;
+  } else {
+    accountStatus.textContent = "Guest session unavailable";
+    signInButton.hidden = false;
+    signUpButton.hidden = false;
+    signOutButton.hidden = true;
+  }
+}
 
-    // SESSION CONVERSATION MEMORY
-    const STORAGE_KEY = 'nyra_session_history_v1';
-    const MAX_HISTORY = 30;
+async function getAccessToken() {
+  const { data, error } = await supabaseClient.auth.getSession();
+  if (error) throw error;
+  const token = data.session?.access_token;
+  if (!token) throw new Error("Your Nyra session is unavailable. Please refresh the page.");
+  return token;
+}
 
-    let conversationHistory = [];
-
-    try {
-      const saved = JSON.parse(
-        sessionStorage.getItem(STORAGE_KEY) || '[]'
-      );
-
-      if (Array.isArray(saved)) {
-        conversationHistory = saved
-          .filter(item =>
-            item &&
-            ['user', 'assistant'].includes(item.role) &&
-            typeof item.content === 'string'
-          )
-          .slice(-MAX_HISTORY);
-      }
-
-    } catch (error) {
-      conversationHistory = [];
-    }
-
-    // SAVE SESSION HISTORY
-    function saveHistory() {
-      try {
-        sessionStorage.setItem(
-          STORAGE_KEY,
-          JSON.stringify(
-            conversationHistory.slice(-MAX_HISTORY)
-          )
-        );
-
-      } catch (error) {
-        console.warn('Nyra session history could not be saved.');
-      }
-    }
-
-    // DISPLAY MESSAGES
-    function addMessage(text, kind) {
-      const el = document.createElement('div');
-
-      el.className = 'message ' + kind;
-      el.textContent = text;
-
-      messagesEl.appendChild(el);
-
-      messagesEl.scrollTop = messagesEl.scrollHeight;
-
-      return el;
-    }
-
-    // RESTORE PREVIOUS CONVERSATION
-    function renderHistory() {
-      messagesEl.replaceChildren();
-
-      const welcome = document.createElement('div');
-
-      welcome.className = 'message nyra';
-
-      welcome.textContent =
-        "NYRA\nHello! I'm Nyra, your AI companion from AstropicAI. Tell me what you'd like to accomplish, and we'll work through it together.";
-
-      messagesEl.appendChild(welcome);
-
-      conversationHistory.forEach(item => {
-        addMessage(
-          (item.role === 'user' ? 'You: ' : 'Nyra: ')
-          + item.content,
-          item.role === 'user' ? 'user' : 'nyra'
-        );
-      });
-    }
-
-    renderHistory();
-
-    // SUGGESTED PROMPTS
-    document.querySelectorAll('[data-prompt]').forEach(button => {
-
-      button.addEventListener('click', () => {
-
-        input.value = button.dataset.prompt;
-
-        input.focus();
-
-      });
-
+async function loadSavedConversation() {
+  if (!currentUser) return;
+  const storedId = localStorage.getItem(conversationStorageKey(currentUser.id));
+  currentConversationId = storedId || null;
+  if (!currentConversationId) {
+    showWelcome();
+    return;
+  }
+  try {
+    const token = await getAccessToken();
+    const response = await fetch(CHAT_ENDPOINT + "?conversation_id=" + encodeURIComponent(currentConversationId), {
+      method: "GET",
+      headers: { Authorization: "Bearer " + token }
     });
+    const data = await response.json();
+    if (response.status === 404) {
+      localStorage.removeItem(conversationStorageKey(currentUser.id));
+      currentConversationId = null;
+      showWelcome();
+      return;
+    }
+    if (!response.ok) throw new Error(data.error || "Could not load saved conversation.");
+    renderHistory(data.history || []);
+  } catch (error) {
+    console.error("Nyra history load error:", error);
+    accountStatus.textContent = "Conversation history could not be loaded. You can still try chatting.";
+    showWelcome();
+  }
+}
 
-    // MAIN CHAT FUNCTION
-    chatForm.addEventListener('submit', async event => {
+async function initializeNyra() {
+  if (!window.supabase || SUPABASE_URL.includes("YOUR_") || SUPABASE_PUBLISHABLE_KEY.includes("YOUR_")) {
+    accountStatus.textContent = "Add your Supabase URL and publishable key to activate Nyra.";
+    sendButton.disabled = true;
+    console.error("Nyra Supabase configuration is incomplete.");
+    return;
+  }
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+  });
+  const { data, error } = await supabaseClient.auth.getSession();
+  if (error) throw error;
+  if (data.session?.user) {
+    updateAccountUI(data.session.user);
+  } else {
+    const { data: guestData, error: guestError } = await supabaseClient.auth.signInAnonymously();
+    if (guestError) throw guestError;
+    updateAccountUI(guestData.user);
+  }
+  authReady = true;
+  await loadSavedConversation();
+  sendButton.disabled = false;
+}
 
-      event.preventDefault();
+function openAuthPanel(mode) {
+  authMode = mode;
+  authTitle.textContent = mode === "signup" ? "Create your Nyra account" : "Sign in to Nyra";
+  authSubmit.textContent = mode === "signup" ? "Create account" : "Sign in";
+  authPassword.autocomplete = mode === "signup" ? "new-password" : "current-password";
+  authMessage.textContent = "";
+  authPanel.classList.add("open");
+}
 
-      const task = input.value.trim();
+signInButton.addEventListener("click", () => openAuthPanel("signin"));
+signUpButton.addEventListener("click", () => openAuthPanel("signup"));
+closeAuthButton.addEventListener("click", () => authPanel.classList.remove("open"));
 
-      if (!task || sendButton.disabled) {
-        return;
+authForm.addEventListener("submit", async event => {
+  event.preventDefault();
+  if (!supabaseClient) return;
+  authSubmit.disabled = true;
+  authMessage.textContent = "Please wait…";
+  try {
+    const email = authEmail.value.trim();
+    const password = authPassword.value;
+    if (authMode === "signup") {
+      const { data, error } = await supabaseClient.auth.signUp({ email, password });
+      if (error) throw error;
+      if (data.session?.user) {
+        updateAccountUI(data.session.user);
+        authPanel.classList.remove("open");
+        await loadSavedConversation();
+      } else {
+        authMessage.textContent = "Account created. Verify your email, then sign in.";
       }
+    } else {
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      updateAccountUI(data.user);
+      authPanel.classList.remove("open");
+      await loadSavedConversation();
+    }
+    authForm.reset();
+  } catch (error) {
+    console.error("Nyra account error:", error);
+    authMessage.textContent = error.message || "Account request failed.";
+  } finally {
+    authSubmit.disabled = false;
+  }
+});
 
-      if (task.length > 8000) {
+signOutButton.addEventListener("click", async () => {
+  if (!supabaseClient) return;
+  signOutButton.disabled = true;
+  try {
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) throw error;
+    const { data, error: guestError } = await supabaseClient.auth.signInAnonymously();
+    if (guestError) throw guestError;
+    updateAccountUI(data.user);
+    currentConversationId = null;
+    showWelcome();
+    accountStatus.textContent = "Using Nyra as guest";
+  } catch (error) {
+    console.error("Nyra sign-out error:", error);
+    accountStatus.textContent = "Could not switch account. Please refresh.";
+  } finally {
+    signOutButton.disabled = false;
+  }
+});
 
-        addMessage(
-          'Please keep your message under 8,000 characters.',
-          'nyra'
-        );
+supabaseClientReady();
+async function supabaseClientReady() {
+  try {
+    await initializeNyra();
+  } catch (error) {
+    console.error("Nyra startup error:", error);
+    accountStatus.textContent = "Nyra could not start a guest session. Check Supabase settings and refresh.";
+    sendButton.disabled = true;
+  }
+}
 
-        return;
-      }
+// Keep the active conversation id synchronized across tabs using shared localStorage.
+window.addEventListener("storage", event => {
+  if (!currentUser || event.key !== conversationStorageKey(currentUser.id)) return;
+  currentConversationId = event.newValue || null;
+  loadSavedConversation();
+});
 
-      // Keep the previous history for rollback if request fails.
-      const previousHistory = [...conversationHistory];
+// Suggested prompts.
+document.querySelectorAll("[data-prompt]").forEach(button => {
+  button.addEventListener("click", () => {
+    input.value = button.dataset.prompt;
+    input.focus();
+  });
+});
 
-      // Save new user message.
-      conversationHistory.push({
-        role: 'user',
-        content: task
-      });
+chatForm.addEventListener("submit", async event => {
+  event.preventDefault();
+  const task = input.value.trim();
+  if (!task || chatBusy) return;
+  if (task.length > 8000) {
+    addMessage("Please keep your message under 8,000 characters.", "nyra");
+    return;
+  }
+  if (!authReady || !supabaseClient || !currentUser) {
+    addMessage("Nyra is still starting. Please wait a moment and try again.", "nyra");
+    return;
+  }
 
-      conversationHistory =
-        conversationHistory.slice(-MAX_HISTORY);
-
-      saveHistory();
-
-      addMessage('You: ' + task, 'user');
-
-      input.value = '';
-
-      sendButton.disabled = true;
-
-      // THINKING INDICATOR
-      const thinking = document.createElement('div');
-
-      thinking.className = 'message nyra';
-
-      thinking.textContent = 'Nyra is thinking...';
-
-      messagesEl.appendChild(thinking);
-
-      messagesEl.scrollTop = messagesEl.scrollHeight;
-
-      try {
-
-        // CONNECT TO NETLIFY FUNCTION THROUGH NYRA ROUTE
-        const response = await fetch('/nyra/api/chat', {
-
-          method: 'POST',
-
-          headers: {
-            'Content-Type': 'application/json'
-          },
-
-          body: JSON.stringify({
-
-            message: task,
-
-            history: previousHistory.slice(-MAX_HISTORY)
-
-          })
-
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-
-          throw new Error(
-            data.error || 'Request failed'
-          );
-
-        }
-
-        if (
-          typeof data.reply !== 'string' ||
-          !data.reply.trim()
-        ) {
-
-          throw new Error(
-            'Nyra returned an empty response.'
-          );
-
-        }
-
-        thinking.remove();
-
-        // SAVE NYRA RESPONSE
-        conversationHistory.push({
-
-          role: 'assistant',
-
-          content: data.reply
-
-        });
-
-        conversationHistory =
-          conversationHistory.slice(-MAX_HISTORY);
-
-        saveHistory();
-
-        addMessage(
-          'Nyra: ' + data.reply,
-          'nyra'
-        );
-
-      } catch (error) {
-
-        thinking.remove();
-
-        // Restore previous successful conversation.
-        conversationHistory = previousHistory;
-
-        saveHistory();
-
-        addMessage(
-          'Sorry, I could not connect. ' + error.message,
-          'nyra'
-        );
-
-      } finally {
-
-        sendButton.disabled = false;
-
-        input.focus();
-
-      }
-
+  chatBusy = true;
+  sendButton.disabled = true;
+  input.disabled = true;
+  const thinking = addMessage("Nyra is thinking…", "nyra");
+  try {
+    const token = await getAccessToken();
+    const response = await fetch(CHAT_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+      body: JSON.stringify({ message: task, conversation_id: currentConversationId })
     });
-
-  </script>
-
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Request failed.");
+    if (typeof data.reply !== "string" || !data.reply.trim() || !data.conversation_id) {
+      throw new Error("Nyra returned an incomplete response.");
+    }
+    currentConversationId = data.conversation_id;
+    localStorage.setItem(conversationStorageKey(currentUser.id), currentConversationId);
+    thinking.remove();
+    addMessage("You: " + task, "user");
+    addMessage("Nyra: " + data.reply, "nyra");
+    input.value = "";
+  } catch (error) {
+    console.error("Nyra chat error:", error);
+    thinking.remove();
+    addMessage("Sorry, I could not connect. " + (error.message || "Please try again."), "nyra");
+  } finally {
+    chatBusy = false;
+    sendButton.disabled = false;
+    input.disabled = false;
+    input.focus();
+  }
+});
+</script>
 </body>
 </html>
