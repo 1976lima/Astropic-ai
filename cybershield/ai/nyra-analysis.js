@@ -116,63 +116,6 @@ export function analyseWithNyra(evidence) {
   };
 }
 
-  if (!evidence || typeof evidence !== "object") {
-    throw new Error("Valid security evidence is required.");
-  }
-
-  // Run the existing CyberShield security engine.
-  const result = analyseEvidence(evidence);
-
-  const findings = (result.findings || [])
-    .map(explainFinding)
-    .sort((a, b) =>
-      (SEVERITY_ORDER[a.severity] ?? 4) -
-      (SEVERITY_ORDER[b.severity] ?? 4)
-    );
-
-  const counts = {
-    critical: 0,
-    high: 0,
-    medium: 0,
-    low: 0,
-    info: 0
-  };
-
-  findings.forEach(finding => {
-    const severity = finding.severity;
-    if (Object.hasOwn(counts, severity)) {
-      counts[severity]++;
-    }
-  });
-
-  const score = Number.isFinite(result.score)
-    ? result.score
-    : 0;
-
-  const recommendations = [
-    ...new Set(findings.map(f => f.action))
-  ];
-
-  return {
-    product: "Nyra AI | CyberShield",
-    target: result.target,
-    score,
-    riskLevel: riskLabel(score),
-    findings,
-    counts,
-    recommendations,
-    totalFindings: findings.length,
-    generatedAt: new Date().toISOString(),
-    assessmentType: "Evidence-based security analysis",
-    limitations: [
-      "Analysis is based only on supplied evidence.",
-      "No live website scanning is performed.",
-      "Recommendations require technical verification.",
-      "Risk score is a preliminary heuristic, not a security certification.",
-      "Explanations are rule-based and do not represent live AI inference."
-    ]
-  };
-}
 
 export function formatNyraReport(report) {
   if (!report || !Array.isArray(report.findings)) {
