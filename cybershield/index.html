@@ -229,20 +229,35 @@ $("target").addEventListener("input", syncTargetToEvidence);
         "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
       })[char]);
     }
+async function loadSample() {
+  setMessage("Loading sample evidence…");
 
-    async function loadSample() {
-      setMessage("Loading sample evidence…");
-      try {
-        const response = await fetch("./engine/sample-evidence.json", { cache: "no-store" });
-        if (!response.ok) throw new Error("Sample file could not be loaded. You can upload or paste JSON instead.");
-        const evidence = await response.json();
-        $("evidence").value = JSON.stringify(evidence, null, 2);
-        $("target").value = evidence.target || "";
-        setMessage("Sample evidence loaded. Select Analyse with Nyra to run the assessment.");
-      } catch (error) {
-        setMessage(error.message, true);
-      }
+  try {
+    const response = await fetch(
+      "./engine/sample-evidence.json",
+      { cache: "no-store" }
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        "Sample file could not be loaded. You can upload or paste JSON instead."
+      );
     }
+
+    const evidence = await response.json();
+
+    $("evidence").value = JSON.stringify(evidence, null, 2);
+
+    // Keep the target field empty.
+    $("target").value = "";
+
+    setMessage(
+      "Sample evidence loaded. Enter an authorised target hostname before analysis."
+    );
+  } catch (error) {
+    setMessage(error.message, true);
+  }
+}
 
     function renderReport(report) {
       latestReport = report;
