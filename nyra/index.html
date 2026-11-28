@@ -21,6 +21,17 @@
     .auth-panel h2 { margin: 0 0 12px; font-size: 20px; }
     .auth-panel input { width: 100%; margin: 7px 0; padding: 12px; border-radius: 9px; border: 1px solid #344464; background: #080d1b; color: white; font-size: 15px; }
     .auth-buttons { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    .forgot-password-link {
+  display: block;
+  margin: 8px 0 0 auto;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: #8ce6ff !important;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 13px;
+    }
     #authMessage { min-height: 20px; color: #9fdcff; font-size: 13px; line-height: 1.5; }
     main { width: min(850px, 92%); margin: 55px auto; text-align: center; }
     .orb { width: 100px; height: 100px; margin: 0 auto 25px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #b9f5ff, #4c7cff 40%, #8c45f5 72%, #17152e); box-shadow: 0 0 65px #517bff66; }
@@ -73,7 +84,12 @@
   <h2 id="authTitle">Sign in to Nyra</h2>
   <form id="authForm">
     <input id="authEmail" type="email" placeholder="Email address" autocomplete="email" required>
-    <input id="authPassword" type="password" placeholder="Password (minimum 8 characters)" autocomplete="current-password" minlength="8" required>
+
+<input id="authPassword" type="password" placeholder="Password (minimum 8 characters)" autocomplete="current-password" minlength="8" required>
+
+<button type="button" id="forgotPasswordButton" class="forgot-password-link">
+  Forgot password?
+</button>
     <div class="auth-buttons"><button type="submit" class="primary" id="authSubmit">Sign in</button><button type="button" id="closeAuthButton">Cancel</button></div>
   </form>
   <p id="authMessage" aria-live="polite"></p>
