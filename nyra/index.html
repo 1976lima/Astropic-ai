@@ -148,8 +148,9 @@ function addMessage(text, kind) {
 
   const content = String(text ?? "");
 
-  const pattern =
-    /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)|\*\*(https?:\/\/[^*\s]+)\*\*|\*\*([^*]+)\*\*|(https?:\/\/[^\s<]+)/g;
+  
+const pattern =
+  /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)|\*\*(https?:\/\/[^*\s]+)\*\*|\*\*([^*]+)\*\*|\*([^*]+)\*|(https?:\/\/[^\s<]+)/g;
 
   let lastIndex = 0;
   let match;
@@ -162,11 +163,13 @@ function addMessage(text, kind) {
     );
 
     if (
-      match[1] !== undefined ||
-      match[3] !== undefined ||
-      match[5] !== undefined
-    ) {
-      const url = match[2] || match[3] || match[5];
+  match[1] !== undefined ||
+  match[3] !== undefined ||
+  match[6] !== undefined
+) {
+      
+const url = match[2] || match[3] || match[6];
+
       const label = match[1] || url;
 
       const cleanUrl = url.replace(/[.,!?;:)\]]+$/, "");
@@ -183,10 +186,14 @@ function addMessage(text, kind) {
       if (trailing) {
         el.appendChild(document.createTextNode(trailing));
       }
-    } else {
-      const strong = document.createElement("strong");
-      strong.textContent = match[4];
-      el.appendChild(strong);
+    if (match[4] !== undefined) {
+  const strong = document.createElement("strong");
+  strong.textContent = match[4];
+  el.appendChild(strong);
+} else {
+  const italic = document.createElement("em");
+  italic.textContent = match[5];
+  el.appendChild(italic);
     }
 
     lastIndex = pattern.lastIndex;
