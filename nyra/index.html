@@ -44,6 +44,16 @@
     footer { text-align: center; color: #7786a5; padding: 25px; font-size: 13px; }
     @media(max-width: 600px) { header { padding: 15px 4%; } main { margin: 40px auto; } .chat { padding: 13px; } .chat-form { gap: 7px; } .chat-form input { padding: 12px; font-size: 14px; } .chat-form button { padding: 0 15px; } #messages { max-height: 400px; } .account-actions { gap: 5px; } .account-actions button { padding: 8px 9px; font-size: 12px; } }
     @media(prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; } }
+ .message a {
+  color: #8ce6ff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  overflow-wrap: anywhere;
+}
+
+.message a:hover {
+  color: #b9f5ff;
+}
   </style>
 </head>
 <body>
@@ -134,11 +144,61 @@ function showWelcome() {
 function addMessage(text, kind) {
   const el = document.createElement("div");
   el.className = "message " + kind;
-  el.textContent = text;
+
+  const content = String(text ?? "");
+  const pattern = /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)|\*\*([^*]+)\*\*|(https?:\/\/[^\s<]+)/g;
+
+  let lastIndex = 0;
+  let match;
+
+  while ((match = pattern.exec(content)) !== null) {
+    el.appendChild(
+      document.createTextNode(content.slice(lastIndex, match.index))
+    );
+
+    if (match[1] !== undefined) {
+      const link = document.createElement("a");
+      link.textContent = match[1];
+      link.href = match[2];
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      el.appendChild(link);
+
+    } else if (match[3] !== undefined) {
+      const strong = document.createElement("strong");
+      strong.textContent = match[3];
+      el.appendChild(strong);
+
+    } else {
+      const rawUrl = match[4];
+      const cleanUrl = rawUrl.replace(/[.,!?;:)\]]+$/, "");
+      const trailing = rawUrl.slice(cleanUrl.length);
+
+      const link = document.createElement("a");
+      link.textContent = cleanUrl;
+      link.href = cleanUrl;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      el.appendChild(link);
+
+      if (trailing) {
+        el.appendChild(document.createTextNode(trailing));
+      }
+    }
+
+    lastIndex = pattern.lastIndex;
+  }
+
+  el.appendChild(
+    document.createTextNode(content.slice(lastIndex))
+  );
+
   messagesEl.appendChild(el);
   messagesEl.scrollTop = messagesEl.scrollHeight;
+
   return el;
 }
+
 
 function renderHistory(history) {
   showWelcome();
