@@ -94,7 +94,36 @@
   </form>
   <p id="authMessage" aria-live="polite"></p>
 </section>
+  
+<section class="auth-panel" id="recoveryPanel" aria-label="Reset password">
+  <h2>Set a new password</h2>
 
+  <form id="recoveryForm">
+    <input
+      id="newPassword"
+      type="password"
+      placeholder="New password (minimum 8 characters)"
+      minlength="8"
+      autocomplete="new-password"
+      required
+    >
+
+    <input
+      id="confirmPassword"
+      type="password"
+      placeholder="Confirm new password"
+      minlength="8"
+      autocomplete="new-password"
+      required
+    >
+
+    <div class="auth-buttons">
+      <button type="submit" class="primary">Update password</button>
+    </div>
+  </form>
+
+  <p id="recoveryMessage" aria-live="polite"></p>
+</section>
 <main>
   <div class="orb" aria-hidden="true"></div>
   <h1>Meet <span>Nyra.</span></h1>
