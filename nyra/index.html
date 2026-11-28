@@ -139,7 +139,7 @@ const signInButton = document.getElementById("signInButton");
 const signUpButton = document.getElementById("signUpButton");
 const signOutButton = document.getElementById("signOutButton");
 const closeAuthButton = document.getElementById("closeAuthButton");
-
+const forgotPasswordButton = document.getElementById("forgotPasswordButton");
 const MAX_HISTORY = 30;
 const CHAT_ENDPOINT = "/nyra/api/chat";
 let supabaseClient = null;
@@ -323,7 +323,33 @@ function openAuthPanel(mode) {
 signInButton.addEventListener("click", () => openAuthPanel("signin"));
 signUpButton.addEventListener("click", () => openAuthPanel("signup"));
 closeAuthButton.addEventListener("click", () => authPanel.classList.remove("open"));
+forgotPasswordButton.addEventListener("click", async () => {
+  const email = authEmail.value.trim();
 
+  if (!email) {
+    authMessage.textContent = "Please enter your registered email address first.";
+    authEmail.focus();
+    return;
+  }
+
+  forgotPasswordButton.disabled = true;
+  authMessage.textContent = "Sending password reset email...";
+
+  try {
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: "https://astropicai.com/nyra"
+    });
+
+    if (error) throw error;
+
+    authMessage.textContent =
+      "Password reset link sent. Please check your email.";
+  } catch (error) {
+    authMessage.textContent = error.message || "Password reset failed.";
+  } finally {
+    forgotPasswordButton.disabled = false;
+  }
+});
 authForm.addEventListener("submit", async event => {
   event.preventDefault();
   if (!supabaseClient) return;
