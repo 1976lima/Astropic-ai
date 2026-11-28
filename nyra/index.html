@@ -142,41 +142,30 @@ function showWelcome() {
 }
 
 
+
 function addMessage(text, kind) {
   const el = document.createElement("div");
   el.className = "message " + kind;
 
   const content = String(text ?? "");
 
-  
-const pattern =
-  /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)|\*\*(https?:\/\/[^*\s]+)\*\*|\*\*([^*]+)\*\*|\*([^*]+)\*|(https?:\/\/[^\s<]+)/g;
+  const pattern =
+    /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)|\*\*(https?:\/\/[^*\s]+)\*\*|\*\*([^*]+)\*\*|\*([^*]+)\*|(https?:\/\/[^\s<]+)/g;
 
   let lastIndex = 0;
   let match;
-
-  while ((match = pattern.exec(content)) !== null) {
+while ((match = pattern.exec(content)) !== null) {
     el.appendChild(
-      document.createTextNode(
-        content.slice(lastIndex, match.index)
-      )
+      document.createTextNode(content.slice(lastIndex, match.index))
     );
 
-    if (
-  match[1] !== undefined ||
-  match[3] !== undefined ||
-  match[6] !== undefined
-) {
-      
-const url = match[2] || match[3] || match[6];
-
-      const label = match[1] || url;
-
+    if (match[2] || match[3] || match[6]) {
+      const url = match[2] || match[3] || match[6];
       const cleanUrl = url.replace(/[.,!?;:)\]]+$/, "");
       const trailing = url.slice(cleanUrl.length);
 
       const link = document.createElement("a");
-      link.textContent = label === url ? cleanUrl : label;
+      link.textContent = match[1] || cleanUrl;
       link.href = cleanUrl;
       link.target = "_blank";
       link.rel = "noopener noreferrer";
@@ -186,14 +175,14 @@ const url = match[2] || match[3] || match[6];
       if (trailing) {
         el.appendChild(document.createTextNode(trailing));
       }
-    if (match[4] !== undefined) {
-  const strong = document.createElement("strong");
-  strong.textContent = match[4];
-  el.appendChild(strong);
-} else {
-  const italic = document.createElement("em");
-  italic.textContent = match[5];
-  el.appendChild(italic);
+    } else if (match[4] !== undefined) {
+      const strong = document.createElement("strong");
+      strong.textContent = match[4];
+      el.appendChild(strong);
+    } else if (match[5] !== undefined) {
+      const italic = document.createElement("em");
+      italic.textContent = match[5];
+      el.appendChild(italic);
     }
 
     lastIndex = pattern.lastIndex;
@@ -208,6 +197,7 @@ const url = match[2] || match[3] || match[6];
 
   return el;
 }
+
 
 
 function renderHistory(history) {
