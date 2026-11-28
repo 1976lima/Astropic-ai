@@ -328,6 +328,18 @@ async function initializeNyra() {
   supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
   });
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+  if (event === "PASSWORD_RECOVERY") {
+    authPanel.classList.remove("open");
+    recoveryPanel.classList.add("open");
+    recoveryMessage.textContent =
+      "Enter and confirm your new password.";
+
+    if (session?.user) {
+      updateAccountUI(session.user);
+    }
+  }
+});
   const { data, error } = await supabaseClient.auth.getSession();
   if (error) throw error;
   if (data.session?.user) {
