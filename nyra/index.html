@@ -169,6 +169,8 @@ const signUpButton = document.getElementById("signUpButton");
 const signOutButton = document.getElementById("signOutButton");
 const closeAuthButton = document.getElementById("closeAuthButton");
 const forgotPasswordButton = document.getElementById("forgotPasswordButton");
+const recoveryPanel = document.getElementById("recoveryPanel");
+const recoveryForm = document.getElementById("recoveryForm");
 const MAX_HISTORY = 30;
 const CHAT_ENDPOINT = "/nyra/api/chat";
 let supabaseClient = null;
@@ -410,6 +412,46 @@ authForm.addEventListener("submit", async event => {
     authMessage.textContent = error.message || "Account request failed.";
   } finally {
     authSubmit.disabled = false;
+  }
+});
+
+recoveryForm.addEventListener("submit", async event => {
+  event.preventDefault();
+
+  const newPassword = document.getElementById("newPassword").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
+  const recoveryMessage = document.getElementById("recoveryMessage");
+  const button = recoveryForm.querySelector('button[type="submit"]');
+
+  if (newPassword.length < 8) {
+    recoveryMessage.textContent = "Password must contain at least 8 characters.";
+    return;
+  }
+
+  if (newPassword !== confirmPassword) {
+    recoveryMessage.textContent = "Passwords do not match.";
+    return;
+  }
+
+  button.disabled = true;
+  recoveryMessage.textContent = "Updating password...";
+
+  try {
+    const { error } = await supabaseClient.auth.updateUser({
+      password: newPassword
+    });
+
+    if (error) throw error;
+
+    recoveryMessage.textContent = "Password updated successfully. Please sign in.";
+    recoveryForm.reset();
+    recoveryPanel.classList.remove("open");
+    openAuthPanel("signin");
+
+  } catch (error) {
+    recoveryMessage.textContent = error.message || "Password update failed.";
+  } finally {
+    button.disabled = false;
   }
 });
 
